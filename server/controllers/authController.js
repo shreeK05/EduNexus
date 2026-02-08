@@ -1,5 +1,6 @@
 // server/controllers/authController.js
 const User = require('../models/User');
+const Classroom = require('../models/Classroom'); // <--- 1. IMPORT CLASSROOM MODEL
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
@@ -41,7 +42,7 @@ const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        token: generateToken(user._id), // Changed user.id to user._id for consistency
+        token: generateToken(user._id),
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
@@ -77,16 +78,18 @@ const loginUser = async (req, res) => {
   }
 };
 
-// @desc    Delete User Account
+// @desc    Delete User Account AND Their Classes
 // @route   DELETE /api/auth/delete
 const deleteAccount = async (req, res) => {
   try {
-    // Delete the user found by ID (req.user comes from auth middleware)
+    // 1. Delete all classes where this user is the teacher
+    // (This ensures no 'zombie' classes are left behind)
+    await Classroom.deleteMany({ teacherId: req.user.id }); 
+
+    // 2. Delete the user found by ID (req.user comes from auth middleware)
     await User.findByIdAndDelete(req.user.id);
     
-    // Optional: Add logic here to delete classes if the user is a teacher
-    
-    res.json({ msg: "Account deleted successfully" });
+    res.json({ msg: "Account and associated classes deleted successfully" });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -97,5 +100,5 @@ const deleteAccount = async (req, res) => {
 module.exports = {
   registerUser,
   loginUser,
-  deleteAccount // <--- Added here properly
+  deleteAccount 
 };
