@@ -18,8 +18,8 @@ function App() {
         
         {/* AUTH ROUTES */}
         // ✅ GOOD: Point to the correct components
-<Route path="/login" element={<Login />} />
-<Route path="/register" element={<Register />} /> {/* Pointing to Login for now if you don't have Register */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />  {/* Pointing to Login for now if you don't have Register */}
 
         {/* PROTECTED ROUTES */}
         <Route path="/dashboard" element={<Dashboard />} />
