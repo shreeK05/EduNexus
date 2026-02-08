@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 
-const socket = io.connect("http://localhost:5000");
+const socket = io.connect("https://edunexus-api-ci68.onrender.com");
 
 const LiveProctoring = () => {
   const { quizId } = useParams();

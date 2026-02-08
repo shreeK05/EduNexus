@@ -38,7 +38,7 @@ const CreateQuiz = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/quizzes/create', {
+      await axios.post('https://edunexus-api-ci68.onrender.com/api/quizzes/create', {
         classId,
         title,
         startDate, // <--- Send Both

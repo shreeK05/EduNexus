@@ -39,10 +39,10 @@ const Classroom = () => {
     const fetchData = async () => {
       try {
         const [classRes, assignRes, announceRes, quizRes] = await Promise.all([
-            axios.get(`http://localhost:5000/api/classes/details/${id}`),
-            axios.get(`http://localhost:5000/api/assignments/${id}`),
-            axios.get(`http://localhost:5000/api/announcements/${id}`),
-            axios.get(`http://localhost:5000/api/quizzes/${id}`) 
+            axios.get(`https://edunexus-api-ci68.onrender.com/api/classes/details/${id}`),
+            axios.get(`https://edunexus-api-ci68.onrender.com/api/assignments/${id}`),
+            axios.get(`https://edunexus-api-ci68.onrender.com/api/announcements/${id}`),
+            axios.get(`https://edunexus-api-ci68.onrender.com/api/quizzes/${id}`) 
         ]);
 
         setClassroom(classRes.data);
@@ -59,7 +59,7 @@ const Classroom = () => {
   const handleStartClass = async () => {
       if (user.role !== 'TEACHER') return;
       try {
-          await axios.put(`http://localhost:5000/api/classes/${id}/live`, { isLive: true });
+          await axios.put(`https://edunexus-api-ci68.onrender.com/api/classes/${id}/live`, { isLive: true });
           window.open(`/video/${id}`, '_blank');
           setClassroom(prev => ({ ...prev, isLive: true }));
       } catch (err) { alert("Error starting class"); }
@@ -67,7 +67,7 @@ const Classroom = () => {
 
   const handleJoinClass = async () => {
       try {
-          const res = await axios.get(`http://localhost:5000/api/classes/details/${id}`);
+          const res = await axios.get(`https://edunexus-api-ci68.onrender.com/api/classes/details/${id}`);
           if (res.data.isLive) {
               window.open(`/video/${id}`, '_blank');
           } else {
@@ -80,11 +80,11 @@ const Classroom = () => {
     e.preventDefault();
     if (!announcementContent.trim()) return;
     try {
-      await axios.post('http://localhost:5000/api/announcements/create', {
+      await axios.post('https://edunexus-api-ci68.onrender.com/api/announcements/create', {
         classId: id, senderId: user._id, content: announcementContent
       });
       setAnnouncementContent(''); 
-      const res = await axios.get(`http://localhost:5000/api/announcements/${id}`);
+      const res = await axios.get(`https://edunexus-api-ci68.onrender.com/api/announcements/${id}`);
       setAnnouncements(res.data);
     } catch (err) { alert('Failed to post announcement'); }
   };
@@ -101,17 +101,17 @@ const Classroom = () => {
     if (newAssignment.file) formData.append('file', newAssignment.file);
 
     try {
-      await axios.post('http://localhost:5000/api/assignments/create', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await axios.post('https://edunexus-api-ci68.onrender.com/api/assignments/create', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       alert('Assignment Created!');
       setShowCreateModal(false);
-      const res = await axios.get(`http://localhost:5000/api/assignments/${id}`);
+      const res = await axios.get(`https://edunexus-api-ci68.onrender.com/api/assignments/${id}`);
       setAssignments(res.data);
     } catch (err) { alert('Failed to create assignment'); }
   };
 
   const handleViewSubmissions = async (assignmentId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/assignments/${assignmentId}/submissions`);
+      const res = await axios.get(`https://edunexus-api-ci68.onrender.com/api/assignments/${assignmentId}/submissions`);
       setSubmissionsList(res.data);
       setShowSubmissionsModal(true);
     } catch (err) { alert('Error fetching submissions'); }
@@ -125,7 +125,7 @@ const Classroom = () => {
     const data = grades[submissionId];
     if (!data || !data.score) return alert("Please enter a score");
     try {
-      await axios.put(`http://localhost:5000/api/assignments/grade/${submissionId}`, { grade: data.score, feedback: data.feedback });
+      await axios.put(`https://edunexus-api-ci68.onrender.com/api/assignments/grade/${submissionId}`, { grade: data.score, feedback: data.feedback });
       alert("Graded Successfully!");
       setSubmissionsList(prev => prev.map(sub => sub._id === submissionId ? { ...sub, status: 'Graded', grade: data.score } : sub));
     } catch (err) { alert("Error saving grade"); }
@@ -140,7 +140,7 @@ const Classroom = () => {
     formData.append('studentId', user._id);
     formData.append('file', submissionFile);
     try {
-      await axios.post('http://localhost:5000/api/assignments/submit', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await axios.post('https://edunexus-api-ci68.onrender.com/api/assignments/submit', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       alert('Work Submitted Successfully!');
       setSubmissionFile(null);
     } catch (err) { alert(err.response?.data?.message || 'Error submitting work'); }

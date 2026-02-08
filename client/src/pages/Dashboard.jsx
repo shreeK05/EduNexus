@@ -22,7 +22,7 @@ const Dashboard = () => {
 
   const fetchClasses = async (userId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/classes/${userId}`);
+      const res = await axios.get(`https://edunexus-api-ci68.onrender.com/api/classes/${userId}`);
       setClasses(res.data);
     } catch (err) {
       console.error(err);
@@ -38,10 +38,10 @@ const Dashboard = () => {
     e.preventDefault();
     try {
       if (user.role === 'TEACHER') {
-        await axios.post('http://localhost:5000/api/classes/create', { ...formData, teacherId: user._id });
+        await axios.post('https://edunexus-api-ci68.onrender.com/api/classes/create', { ...formData, teacherId: user._id });
         alert('Classroom Created Successfully!');
       } else {
-        await axios.post('http://localhost:5000/api/classes/join', { code: formData.code, studentId: user._id });
+        await axios.post('https://edunexus-api-ci68.onrender.com/api/classes/join', { code: formData.code, studentId: user._id });
         alert('Joined Class Successfully!');
       }
       setShowModal(false);

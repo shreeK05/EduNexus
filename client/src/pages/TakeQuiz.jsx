@@ -5,7 +5,7 @@ import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import io from 'socket.io-client';
 
-const socket = io.connect("http://localhost:5000");
+const socket = io.connect("https://edunexus-api-ci68.onrender.com");
 
 const TakeQuiz = () => {
   const { quizId } = useParams();
@@ -52,7 +52,7 @@ const TakeQuiz = () => {
     // 3. Fetch Quiz
     const fetchQuiz = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/quizzes/single/${quizId}`);
+        const res = await axios.get(`https://edunexus-api-ci68.onrender.com/api/quizzes/single/${quizId}`);
         setQuiz(res.data);
       } catch (err) { alert("Error loading quiz"); }
     };
@@ -124,7 +124,7 @@ const TakeQuiz = () => {
     if(isFrozen) return alert("Your test is frozen. Ask teacher to unfreeze.");
     if(document.fullscreenElement) document.exitFullscreen();
     try {
-      const res = await axios.post('http://localhost:5000/api/quizzes/submit', {
+      const res = await axios.post('https://edunexus-api-ci68.onrender.com/api/quizzes/submit', {
         quizId, studentId: user._id, answers
       });
       alert(`Score: ${res.data.score}/${res.data.total}`);

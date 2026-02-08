@@ -46,7 +46,7 @@ const VideoCall = () => {
       onLeaveRoom: async () => {
         if (user && user.role === 'TEACHER') {
              try {
-                 await axios.put(`http://localhost:5000/api/classes/${roomId}/live`, { isLive: false });
+                 await axios.put(`https://edunexus-api-ci68.onrender.com/api/classes/${roomId}/live`, { isLive: false });
                  console.log("Class Ended");
              } catch(err) { console.error("Failed to end class", err); }
         }
