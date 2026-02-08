@@ -41,7 +41,7 @@ const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        token: generateToken(user.id),
+        token: generateToken(user._id), // Changed user.id to user._id for consistency
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
@@ -67,7 +67,7 @@ const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        token: generateToken(user.id),
+        token: generateToken(user._id),
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
@@ -77,20 +77,25 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
-
-// Delete User Account
-exports.deleteAccount = async (req, res) => {
+// @desc    Delete User Account
+// @route   DELETE /api/auth/delete
+const deleteAccount = async (req, res) => {
   try {
-    // Delete the user found by ID (req.user.id comes from auth middleware)
+    // Delete the user found by ID (req.user comes from auth middleware)
     await User.findByIdAndDelete(req.user.id);
     
-    // Optional: Delete all classes created by this teacher
-    // await Class.deleteMany({ teacher: req.user.id });
-
+    // Optional: Add logic here to delete classes if the user is a teacher
+    
     res.json({ msg: "Account deleted successfully" });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
   }
+};
+
+// --- EXPORT ALL FUNCTIONS TOGETHER ---
+module.exports = {
+  registerUser,
+  loginUser,
+  deleteAccount // <--- Added here properly
 };
