@@ -17,8 +17,9 @@ function App() {
         <Route path="/" element={<Home />} />
         
         {/* AUTH ROUTES */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Login />} /> {/* Pointing to Login for now if you don't have Register */}
+        // ✅ GOOD: Point to the correct components
+<Route path="/login" element={<Login />} />
+<Route path="/register" element={<Register />} /> {/* Pointing to Login for now if you don't have Register */}
 
         {/* PROTECTED ROUTES */}
         <Route path="/dashboard" element={<Dashboard />} />
