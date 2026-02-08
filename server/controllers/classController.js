@@ -4,7 +4,7 @@ const Assignment = require('../models/Assignment');
 const Submission = require('../models/Submission');
 const Quiz = require('../models/Quiz');
 const QuizResult = require('../models/QuizResult');
-const sendEmail = require('../utils/sendEmail'); 
+//const sendEmail = require('../utils/sendEmail'); 
 
 // Helper: Generate random 6-char code
 const generateCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -84,28 +84,17 @@ const toggleLiveStatus = async (req, res) => {
     const { id } = req.params;
     const { isLive } = req.body;
     
-    // Update and Populate Students to get emails
-    const classroom = await Classroom.findByIdAndUpdate(id, { isLive }, { new: true })
-        .populate('students', 'email name');
+    const classroom = await Classroom.findByIdAndUpdate(id, { isLive }, { new: true });
     
     if (!classroom) return res.status(404).json({ message: 'Class not found' });
 
-    // --- SEND EMAIL IF CLASS IS STARTED ---
-    if (isLive && classroom.students.length > 0) {
-        console.log("Class is Live! Notifying students...");
+    // --- TEMPORARILY DISABLED EMAIL TO FIX CRASH ---
+    /* if (isLive && classroom.students.length > 0) {
         classroom.students.forEach(student => {
-             sendEmail({
-                 email: student.email,
-                 subject: `🔴 Live Class Started: ${classroom.name}`,
-                 message: `
-                    <h3>The teacher has started a Live Class!</h3>
-                    <p>Click the link below to join immediately.</p>
-                    <br>
-                    <a href="https://edu-nexus.vercel.app/class/${id}" style="background:#ef4444; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">👉 Join Live Class</a>
-                 `
-             }).catch(err => console.log("Email error", err));
+             sendEmail({ ... });
         });
     }
+    */
     
     res.json(classroom);
   } catch (error) { res.status(500).json({ message: error.message }); }
