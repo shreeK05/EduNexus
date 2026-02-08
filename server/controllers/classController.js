@@ -4,7 +4,7 @@ const Assignment = require('../models/Assignment');
 const Submission = require('../models/Submission');
 const Quiz = require('../models/Quiz');
 const QuizResult = require('../models/QuizResult');
-//const sendEmail = require('../utils/sendEmail'); 
+const sendEmail = require('../utils/sendEmail'); 
 
 // Helper: Generate random 6-char code
 const generateCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -84,17 +84,30 @@ const toggleLiveStatus = async (req, res) => {
     const { id } = req.params;
     const { isLive } = req.body;
     
-    const classroom = await Classroom.findByIdAndUpdate(id, { isLive }, { new: true });
-    
+    const classroom = await Classroom.findByIdAndUpdate(id, { isLive }, { new: true })
+      .populate('students', 'email name'); // <--- Ensure .populate is here to get student emails
+
     if (!classroom) return res.status(404).json({ message: 'Class not found' });
 
-    // --- TEMPORARILY DISABLED EMAIL TO FIX CRASH ---
-    /* if (isLive && classroom.students.length > 0) {
+    // --- EMAIL LOGIC (UNCOMMENT THIS BLOCK) ---
+    if (isLive && classroom.students.length > 0) {
+        console.log("🔴 Class is Live! Sending emails...");
+        
         classroom.students.forEach(student => {
-             sendEmail({ ... });
+             // Send email to each student
+             sendEmail({
+                email: student.email,
+                subject: `Live Class Started: ${classroom.name}`,
+                message: `
+                  <h1>Your class is Live! 🔴</h1>
+                  <p>Hello ${student.name},</p>
+                  <p>The class <b>${classroom.name}</b> has just started.</p>
+                  <a href="https://edu-nexus-teal.vercel.app/class/${classroom._id}" style="background:blue;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Join Now</a>
+                `
+             }).catch(err => console.log(`Failed to send to ${student.email}`));
         });
     }
-    */
+    // ------------------------------------------
     
     res.json(classroom);
   } catch (error) { res.status(500).json({ message: error.message }); }

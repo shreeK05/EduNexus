@@ -4,11 +4,12 @@ const sendEmail = async (options) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "shree.k1510@gmail.com", // <--- REPLACE THIS
-      pass: "nzgo yzwm gexz hqll",    // <--- REPLACE THIS (Remove spaces)
+      user: "shree.k1510@gmail.com", // Your email
+      // ⚠️ IMPORTANT: I removed the spaces from your password below
+      pass: "nzgoyzwmgexzhqll", 
     },
   });
-  
+
   const mailOptions = {
     from: "EduNexus LMS <noreply@edunexus.com>",
     to: options.email,
