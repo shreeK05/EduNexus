@@ -76,13 +76,24 @@ const Classroom = () => {
       } catch (err) { alert("Error checking class status"); }
   };
 
-  // --- NEW: DELETE CLASSROOM FUNCTION ---
+  // --- UPDATED: DELETE CLASSROOM FUNCTION ---
   const handleDeleteClass = async () => {
     if(window.confirm("⚠️ Are you sure? This will permanently delete the classroom and all its data.")) {
         try {
+            // 1. Get the token correctly from 'userInfo'
+            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+            const token = userInfo ? userInfo.token : null;
+
+            if (!token) {
+                alert("Session expired. Please logout and login again.");
+                return;
+            }
+
+            // 2. Send request with the correct token
             await axios.delete(`https://edunexus-api-ci68.onrender.com/api/classes/${id}`, {
-                headers: { 'x-auth-token': localStorage.getItem('token') }
+                headers: { 'x-auth-token': token }
             });
+            
             alert("Classroom deleted successfully.");
             navigate('/dashboard'); 
         } catch (err) {

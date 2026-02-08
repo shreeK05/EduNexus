@@ -31,17 +31,29 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('userInfo');
-    localStorage.removeItem('token'); // Also clear the token
+    localStorage.removeItem('token'); 
     navigate('/');
   };
 
-  // --- NEW: Delete Account Function ---
+  // --- UPDATED: Delete Account Function ---
   const handleDeleteAccount = async () => {
     if (window.confirm("⚠️ Are you sure? This cannot be undone!")) {
       try {
+        // 1. Get the token correctly from userInfo
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const token = userInfo ? userInfo.token : null;
+
+        if (!token) {
+            alert("Session expired. Please logout and login again.");
+            return;
+        }
+
+        // 2. Send request with the correct token
         await axios.delete('https://edunexus-api-ci68.onrender.com/api/auth/delete', {
-          headers: { 'x-auth-token': localStorage.getItem('token') }
+          headers: { 'x-auth-token': token }
         });
+
+        // 3. Cleanup and redirect
         localStorage.removeItem('userInfo');
         localStorage.removeItem('token');
         navigate('/');
