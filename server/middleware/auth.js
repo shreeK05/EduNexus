@@ -11,8 +11,13 @@ module.exports = function (req, res, next) {
 
   // Verify token
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "mysecrettoken"); // Use your actual secret if hardcoded
-    req.user = decoded.user;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "mysecrettoken");
+    
+    // --- FIX IS HERE ---
+    // Your generateToken function creates { id: ... }
+    // So 'decoded' already HAS the id. We don't need 'decoded.user'.
+    req.user = decoded; 
+    
     next();
   } catch (err) {
     res.status(401).json({ msg: 'Token is not valid' });
