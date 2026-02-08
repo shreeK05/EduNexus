@@ -31,8 +31,26 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('userInfo');
+    localStorage.removeItem('token'); // Also clear the token
     navigate('/');
   };
+
+  // --- NEW: Delete Account Function ---
+  const handleDeleteAccount = async () => {
+    if (window.confirm("⚠️ Are you sure? This cannot be undone!")) {
+      try {
+        await axios.delete('https://edunexus-api-ci68.onrender.com/api/auth/delete', {
+          headers: { 'x-auth-token': localStorage.getItem('token') }
+        });
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('token');
+        navigate('/');
+      } catch (err) {
+        alert(err.response?.data?.msg || "Error deleting account");
+      }
+    }
+  };
+  // ------------------------------------
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,9 +87,16 @@ const Dashboard = () => {
             {user.role === 'TEACHER' ? '➕ Create Class' : '🔗 Join Class'}
           </button>
         </nav>
-        <button onClick={handleLogout} className="mt-auto w-full py-2 bg-red-500 rounded hover:bg-red-600 transition font-semibold">
-          Logout
-        </button>
+        
+        {/* Bottom Actions */}
+        <div className="mt-auto space-y-3">
+            <button onClick={handleDeleteAccount} className="w-full py-2 bg-red-900/50 hover:bg-red-800 text-red-200 text-sm rounded transition font-semibold">
+            ❌ Delete Account
+            </button>
+            <button onClick={handleLogout} className="w-full py-2 bg-red-500 rounded hover:bg-red-600 transition font-semibold">
+            Logout
+            </button>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -95,7 +120,7 @@ const Dashboard = () => {
             {classes.map((cls) => (
               <div 
                 key={cls._id} 
-                onClick={() => navigate(`/class/${cls._id}`)} // <--- CLICK EVENT HERE
+                onClick={() => navigate(`/class/${cls._id}`)} 
                 className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition cursor-pointer"
               >
                 <div className="flex justify-between items-start mb-4">

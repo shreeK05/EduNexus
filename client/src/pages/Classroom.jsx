@@ -76,6 +76,22 @@ const Classroom = () => {
       } catch (err) { alert("Error checking class status"); }
   };
 
+  // --- NEW: DELETE CLASSROOM FUNCTION ---
+  const handleDeleteClass = async () => {
+    if(window.confirm("⚠️ Are you sure? This will permanently delete the classroom and all its data.")) {
+        try {
+            await axios.delete(`https://edunexus-api-ci68.onrender.com/api/classes/${id}`, {
+                headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
+            alert("Classroom deleted successfully.");
+            navigate('/dashboard'); 
+        } catch (err) {
+            alert(err.response?.data?.msg || "Error deleting class");
+        }
+    }
+  };
+  // --------------------------------------
+
   const handlePostAnnouncement = async (e) => {
     e.preventDefault();
     if (!announcementContent.trim()) return;
@@ -163,9 +179,13 @@ const Classroom = () => {
             <p className="text-xl mt-2 opacity-90">{classroom.section} • {classroom.subject}</p>
             <p className="mt-4 text-sm bg-indigo-800 inline-block px-3 py-1 rounded">Class Code: <span className="font-mono font-bold">{classroom.code}</span></p>
           </div>
-          <div>
+          <div className="flex flex-col gap-2 items-end">
              {user.role === 'TEACHER' ? (
-                 <button onClick={handleStartClass} className="bg-red-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-red-600 transition flex items-center gap-2 transform hover:scale-105">📹 Start Live Class</button>
+                 <>
+                   <button onClick={handleStartClass} className="bg-red-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-red-600 transition flex items-center gap-2 transform hover:scale-105">📹 Start Live Class</button>
+                   {/* DELETE CLASS BUTTON */}
+                   <button onClick={handleDeleteClass} className="text-xs bg-red-800/50 hover:bg-red-900 text-red-100 px-3 py-1 rounded transition mt-2">❌ Delete Class</button>
+                 </>
              ) : (
                  <button onClick={handleJoinClass} className={`${classroom.isLive ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'} text-white px-6 py-3 rounded-full font-bold shadow-lg transition flex items-center gap-2 transform hover:scale-105`}>
                    {classroom.isLive ? '👋 Join Live Class' : '⏳ Waiting for Teacher...'}
@@ -232,8 +252,8 @@ const Classroom = () => {
                         {quizzes.map((quiz) => {
                             // --- TIME LOGIC ---
                             const now = new Date();
-                            const startTime = quiz.startDate ? new Date(quiz.startDate) : new Date(0); // Default to past if missing
-                            const dueTime = quiz.dueDate ? new Date(quiz.dueDate) : new Date(8640000000000000); // Default to future if missing
+                            const startTime = quiz.startDate ? new Date(quiz.startDate) : new Date(0); 
+                            const dueTime = quiz.dueDate ? new Date(quiz.dueDate) : new Date(8640000000000000); 
                             
                             const isScheduled = now < startTime;
                             const isExpired = now > dueTime;
@@ -272,7 +292,9 @@ const Classroom = () => {
 
                                     {/* TEACHER ACTIONS */}
                                     {user.role === 'TEACHER' && (
-                                        <button onClick={() => navigate(`/class/${quiz._id}/live`)} className="bg-red-600 text-white px-6 py-2 rounded-full font-bold shadow hover:bg-red-700 transition ml-4">🔴 Live Monitor</button>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => navigate(`/class/${quiz._id}/live`)} className="bg-red-600 text-white px-6 py-2 rounded-full font-bold shadow hover:bg-red-700 transition ml-4">🔴 Live Monitor</button>
+                                        </div>
                                     )}
                                 </div>
                             );
@@ -339,7 +361,7 @@ const Classroom = () => {
         )}
       </div>
 
-      {/* MODALS (Create Assignment & Submissions) - Hidden for brevity but should be here */}
+      {/* MODALS (Create Assignment & Submissions) */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg relative">

@@ -4,7 +4,7 @@ const Assignment = require('../models/Assignment');
 const Submission = require('../models/Submission');
 const Quiz = require('../models/Quiz');
 const QuizResult = require('../models/QuizResult');
-const sendEmail = require('../utils/sendEmail'); // <--- Import
+const sendEmail = require('../utils/sendEmail'); 
 
 // Helper: Generate random 6-char code
 const generateCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -101,7 +101,7 @@ const toggleLiveStatus = async (req, res) => {
                     <h3>The teacher has started a Live Class!</h3>
                     <p>Click the link below to join immediately.</p>
                     <br>
-                    <a href="http://localhost:5173/class/${id}" style="background:#ef4444; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">👉 Join Live Class</a>
+                    <a href="https://edu-nexus.vercel.app/class/${id}" style="background:#ef4444; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">👉 Join Live Class</a>
                  `
              }).catch(err => console.log("Email error", err));
         });
@@ -111,11 +111,35 @@ const toggleLiveStatus = async (req, res) => {
   } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
+// @desc    Delete a Class (New Feature)
+const deleteClassroom = async (req, res) => {
+  try {
+    const classroom = await Classroom.findById(req.params.id);
+
+    if (!classroom) {
+      return res.status(404).json({ message: 'Class not found' });
+    }
+
+    // Check if user is the teacher who owns this class
+    // req.user is set by the 'auth' middleware
+    if (classroom.teacherId.toString() !== req.user.id) {
+      return res.status(401).json({ message: 'User not authorized to delete this class' });
+    }
+
+    await classroom.deleteOne(); 
+    res.json({ message: 'Classroom removed' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 module.exports = { 
     createClassroom, 
     joinClassroom, 
     MyClasses, 
     getSingleClass, 
     getClassAnalytics, 
-    toggleLiveStatus 
+    toggleLiveStatus,
+    deleteClassroom // <--- Exported here
 };

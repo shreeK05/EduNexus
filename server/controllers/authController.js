@@ -78,3 +78,19 @@ const loginUser = async (req, res) => {
 };
 
 module.exports = { registerUser, loginUser };
+
+// Delete User Account
+exports.deleteAccount = async (req, res) => {
+  try {
+    // Delete the user found by ID (req.user.id comes from auth middleware)
+    await User.findByIdAndDelete(req.user.id);
+    
+    // Optional: Delete all classes created by this teacher
+    // await Class.deleteMany({ teacher: req.user.id });
+
+    res.json({ msg: "Account deleted successfully" });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+};
