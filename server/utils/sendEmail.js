@@ -6,7 +6,7 @@ const sendEmail = async (options) => {
     auth: {
       user: "shree.k1510@gmail.com", // Your email
       // ⚠️ IMPORTANT: I removed the spaces from your password below
-      pass: "nzgoyzwmgexzhqll", 
+      pass: "afjc dtci hcfo skcy", 
     },
   });
 
