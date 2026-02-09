@@ -1,10 +1,11 @@
 const Quiz = require('../models/Quiz');
 const QuizResult = require('../models/QuizResult');
+const Classroom = require('../models/Classroom'); // Import Classroom for emails
+const sendEmail = require('../utils/sendEmail');
 
-// @desc    Create a new Quiz
+// @desc    Create a new Quiz & Notify Students
 const createQuiz = async (req, res) => {
   try {
-    // Extract fields including dates
     const { classId, title, questions, startDate, dueDate } = req.body; 
 
     const newQuiz = new Quiz({
@@ -16,6 +17,49 @@ const createQuiz = async (req, res) => {
     });
 
     const savedQuiz = await newQuiz.save();
+
+    // --- EMAIL NOTIFICATION ---
+    const classroom = await Classroom.findById(classId).populate('students', 'email name');
+
+    if (classroom && classroom.students.length > 0) {
+        console.log(`Sending quiz emails to ${classroom.students.length} students...`);
+        
+        // Helper to format time in India Standard Time (IST)
+        const formatTime = (dateString) => {
+            return new Date(dateString).toLocaleString('en-IN', {
+                timeZone: 'Asia/Kolkata',
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            });
+        };
+
+        classroom.students.forEach(student => {
+            sendEmail({
+                email: student.email,
+                subject: `🧠 New Quiz Scheduled: ${title}`,
+                message: `
+                  <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                    <h2 style="color: #9333ea;">New Quiz Scheduled 🧠</h2>
+                    <p><strong>Class:</strong> ${classroom.name}</p>
+                    <p><strong>Quiz:</strong> ${title}</p>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+                    <p><strong>📅 Start Time:</strong> ${formatTime(startDate)}</p>
+                    <p><strong>⏳ Due Time:</strong> ${formatTime(dueDate)}</p>
+                    <p>Make sure to submit before the deadline!</p>
+                    <div style="margin-top: 20px;">
+                        <a href="https://edu-nexus-teal.vercel.app/class/${classId}" style="background-color: #9333ea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Go to Quiz</a>
+                    </div>
+                  </div>
+                `
+            })
+            .then(() => console.log(`✅ Email sent to ${student.email}`))
+            .catch(err => {
+                console.log(`❌ FAILED for ${student.email}`);
+                console.log(`REASON: ${err.message}`);
+            });
+        });
+    }
+
     res.status(201).json(savedQuiz);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -75,9 +119,13 @@ const submitQuiz = async (req, res) => {
     // Calculate Score
     let score = 0;
     quiz.questions.forEach((q, index) => {
-      const studentAnswer = answers[index];
-      if (q.type === 'single') {
-        if (studentAnswer && studentAnswer[0] === q.correct) score++;
+      // In the frontend, answers are arrays (for checkbox support), but simpler logic here:
+      const studentAnswer = answers[index]; 
+      
+      // If student answer matches correct index
+      // (assuming q.correct is the index number, e.g. 0, 1, 2, 3)
+      if (studentAnswer !== undefined && parseInt(studentAnswer) === q.correct) {
+           score++;
       }
     });
 

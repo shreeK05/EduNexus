@@ -4,9 +4,8 @@ const sendEmail = async (options) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "shree.k1510@gmail.com", // Your email
-      // ⚠️ IMPORTANT: I removed the spaces from your password below
-      pass: "afjc dtci hcfo skcy", 
+      user: "shree.k1510@gmail.com", 
+      pass: "afjcdtcihcfoskcy", // <--- FIX: REMOVED ALL SPACES
     },
   });
 
@@ -17,7 +16,12 @@ const sendEmail = async (options) => {
     html: options.message,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+      await transporter.sendMail(mailOptions);
+      console.log(`✅ Email sent to ${options.email}`);
+  } catch (error) {
+      console.log(`❌ Email failed for ${options.email}:`, error.message);
+  }
 };
 
 module.exports = sendEmail;

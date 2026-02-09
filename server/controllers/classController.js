@@ -84,27 +84,38 @@ const toggleLiveStatus = async (req, res) => {
     const { id } = req.params;
     const { isLive } = req.body;
     
+    // We MUST populate 'students' to get their emails
     const classroom = await Classroom.findByIdAndUpdate(id, { isLive }, { new: true })
-      .populate('students', 'email name'); // <--- Ensure .populate is here to get student emails
+      .populate('students', 'email name'); 
 
     if (!classroom) return res.status(404).json({ message: 'Class not found' });
 
-    // --- EMAIL LOGIC (UNCOMMENT THIS BLOCK) ---
+    // --- EMAIL LOGIC ---
     if (isLive && classroom.students.length > 0) {
-        console.log("🔴 Class is Live! Sending emails...");
+        console.log(`🔴 Class is Live! Sending emails to ${classroom.students.length} students...`);
         
         classroom.students.forEach(student => {
              // Send email to each student
              sendEmail({
                 email: student.email,
-                subject: `Live Class Started: ${classroom.name}`,
+                subject: `🔴 Live Class Started: ${classroom.name}`,
                 message: `
-                  <h1>Your class is Live! 🔴</h1>
-                  <p>Hello ${student.name},</p>
-                  <p>The class <b>${classroom.name}</b> has just started.</p>
-                  <a href="https://edu-nexus-teal.vercel.app/class/${classroom._id}" style="background:blue;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">Join Now</a>
+                  <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                    <h1 style="color: #d32f2f;">Live Class Started! 📹</h1>
+                    <p>Hello <b>${student.name}</b>,</p>
+                    <p>Your teacher has started a live class for <b>${classroom.name}</b>.</p>
+                    <div style="margin: 20px 0;">
+                        <a href="https://edu-nexus-teal.vercel.app/class/${classroom._id}" style="background-color: #d32f2f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Join Live Class Now</a>
+                    </div>
+                    <p style="color: #666; font-size: 12px;">If the button doesn't work, go to your dashboard.</p>
+                  </div>
                 `
-             }).catch(err => console.log(`Failed to send to ${student.email}`));
+             })
+             .then(() => console.log(`✅ Email sent to ${student.email}`))
+             .catch(err => {
+                 console.log(`❌ FAILED for ${student.email}`);
+                 console.log(`REASON: ${err.message}`); // <--- THIS LOGS THE REAL ERROR
+             });
         });
     }
     // ------------------------------------------
@@ -113,7 +124,7 @@ const toggleLiveStatus = async (req, res) => {
   } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
-// @desc    Delete a Class (New Feature)
+// @desc    Delete a Class
 const deleteClassroom = async (req, res) => {
   try {
     const classroom = await Classroom.findById(req.params.id);
@@ -123,7 +134,6 @@ const deleteClassroom = async (req, res) => {
     }
 
     // Check if user is the teacher who owns this class
-    // req.user is set by the 'auth' middleware
     if (classroom.teacherId.toString() !== req.user.id) {
       return res.status(401).json({ message: 'User not authorized to delete this class' });
     }
@@ -143,5 +153,5 @@ module.exports = {
     getSingleClass, 
     getClassAnalytics, 
     toggleLiveStatus,
-    deleteClassroom // <--- Exported here
+    deleteClassroom 
 };

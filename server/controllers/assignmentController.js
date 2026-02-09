@@ -3,7 +3,7 @@ const Submission = require('../models/Submission');
 const Classroom = require('../models/Classroom');
 const sendEmail = require('../utils/sendEmail');
 
-// @desc Create Assignment & Notify Students
+// @desc    Create Assignment & Notify Students
 const createAssignment = async (req, res) => {
   const { classId, title, description, dueDate } = req.body;
   const fileUrl = req.file ? `https://edunexus-api-ci68.onrender.com/uploads/${req.file.filename}` : null;
@@ -16,18 +16,34 @@ const createAssignment = async (req, res) => {
     const classroom = await Classroom.findById(classId).populate('students', 'email name');
 
     if (classroom && classroom.students.length > 0) {
+        console.log(`Sending assignment emails to ${classroom.students.length} students...`);
+        
         classroom.students.forEach(student => {
             sendEmail({
                 email: student.email,
                 subject: `📝 New Assignment: ${title}`,
                 message: `
-                    <h3>New Assignment: ${title}</h3>
+                  <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                    <h2 style="color: #16a34a;">New Assignment Posted 📝</h2>
+                    <p><strong>Class:</strong> ${classroom.name}</p>
+                    <p><strong>Assignment:</strong> ${title}</p>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
                     <p>${description}</p>
-                    <p><strong>Due Date:</strong> ${new Date(dueDate).toLocaleString()}</p>
-                    <br>
-                    <a href="http://localhost:5173/class/${classId}" style="background:#4f46e5; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">View Assignment</a>
+                    <p>
+                        <strong>📅 Due Date:</strong> 
+                        ${new Date(dueDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}
+                    </p>
+                    <div style="margin-top: 20px;">
+                        <a href="https://edu-nexus-teal.vercel.app/class/${classId}" style="background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">View Assignment</a>
+                    </div>
+                  </div>
                 `
-            }).catch(err => console.error(err));
+            })
+            .then(() => console.log(`✅ Email sent to ${student.email}`))
+            .catch(err => {
+                console.log(`❌ FAILED for ${student.email}`);
+                console.log(`REASON: ${err.message}`);
+            });
         });
     }
 
@@ -35,7 +51,7 @@ const createAssignment = async (req, res) => {
   } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
-// @desc Get Assignments
+// @desc    Get Assignments
 const getAssignments = async (req, res) => {
   try {
     const assignments = await Assignment.find({ classId: req.params.classId }).sort({ createdAt: -1 });
@@ -43,7 +59,7 @@ const getAssignments = async (req, res) => {
   } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
-// @desc Submit Assignment
+// @desc    Submit Assignment
 const submitAssignment = async (req, res) => {
     const { assignmentId, studentId } = req.body;
     const fileUrl = req.file ? `https://edunexus-api-ci68.onrender.com/uploads/${req.file.filename}` : null;
@@ -54,7 +70,7 @@ const submitAssignment = async (req, res) => {
     } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
-// @desc Get Submissions for an Assignment (Teacher View)
+// @desc    Get Submissions for an Assignment (Teacher View)
 const getSubmissions = async (req, res) => {
     try {
         const submissions = await Submission.find({ assignmentId: req.params.assignmentId })
@@ -63,7 +79,7 @@ const getSubmissions = async (req, res) => {
     } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
-// @desc Grade Submission
+// @desc    Grade Submission
 const gradeSubmission = async (req, res) => {
     try {
         const { grade, feedback } = req.body;
