@@ -5,7 +5,7 @@ import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import io from 'socket.io-client';
 
-const socket = io.connect("https://https://edunexus-api-o8qg.onrender.com");
+const socket = io.connect("https://edunexus-api-o8qg.onrender.com");
 
 const TakeQuiz = () => {
   const { quizId } = useParams();
