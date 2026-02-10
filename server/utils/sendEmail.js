@@ -1,28 +1,53 @@
 const nodemailer = require("nodemailer");
-const dns = require("dns"); // <--- Import DNS module
+const dns = require("dns");
+const util = require("util");
 
-// 🚨 FORCE IPv4 GLOBALLY (Fixes the ENETUNREACH error)
-try {
-  dns.setDefaultResultOrder('ipv4first');
-  console.log("✅ DNS forced to IPv4 first");
-} catch (e) {
-  console.log("⚠️ Could not set DNS order (Node version might be old), proceeding...");
-}
+const resolve4 = util.promisify(dns.resolve4);
 
 const sendEmail = async (options) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",   // Manual Host
-    port: 465,                // Secure Port
-    secure: true,             // SSL
-    auth: {
-      user: "shree.k1510@gmail.com", 
-      pass: "afjcdtcihcfoskcy", // Your App Password
-    },
-    tls: {
-      // 🚨 EXTRA SAFETY: Refuse to accept IPv6 connections at the TLS level
-      rejectUnauthorized: false
-    }
-  });
+  let transporter;
+
+  try {
+    // 1. Manually find the IPv4 address for Gmail
+    // This bypasses the system DNS which keeps giving us broken IPv6 addresses
+    const addresses = await resolve4('smtp.gmail.com');
+    const gmailIp = addresses[0]; 
+
+    console.log(`🔒 Resolved Gmail IP to: ${gmailIp} (IPv4)`);
+
+    // 2. Configure Transporter using the specific IP Address
+    transporter = nodemailer.createTransport({
+      host: gmailIp,          // Connect to the IP directly (e.g., 142.250.x.x)
+      port: 465,              // Secure Port
+      secure: true,           // SSL
+      auth: {
+        user: "shree.k1510@gmail.com", 
+        pass: "afjcdtcihcfoskcy", // Your App Password
+      },
+      tls: {
+        // We need this because we are connecting to an IP, 
+        // but the certificate is for "smtp.gmail.com"
+        servername: 'smtp.gmail.com', 
+        rejectUnauthorized: false
+      },
+      connectionTimeout: 10000, 
+      greetingTimeout: 5000,    
+      socketTimeout: 10000,     
+    });
+
+  } catch (err) {
+    console.log("⚠️ DNS Resolution failed, falling back to default host");
+    // Fallback if the manual lookup fails (rare)
+    transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "shree.k1510@gmail.com", 
+        pass: "afjcdtcihcfoskcy",
+      },
+    });
+  }
 
   const mailOptions = {
     from: "EduNexus LMS <shree.k1510@gmail.com>",
@@ -31,7 +56,7 @@ const sendEmail = async (options) => {
     html: options.message,
   };
 
-  // RETRY LOGIC
+  // 3. Retry Logic
   let attempts = 0;
   const maxAttempts = 3;
 
