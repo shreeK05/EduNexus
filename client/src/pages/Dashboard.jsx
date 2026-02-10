@@ -22,7 +22,7 @@ const Dashboard = () => {
 
   const fetchClasses = async (userId) => {
     try {
-      const res = await axios.get(`https://edunexus-api-ci68.onrender.com/api/classes/${userId}`);
+      const res = await axios.get(`https://https://edunexus-api-o8qg.onrender.com/api/classes/${userId}`);
       setClasses(res.data);
     } catch (err) {
       console.error(err);
@@ -49,7 +49,7 @@ const Dashboard = () => {
         }
 
         // 2. Send request with the correct token
-        await axios.delete('https://edunexus-api-ci68.onrender.com/api/auth/delete', {
+        await axios.delete('https://https://edunexus-api-o8qg.onrender.com/api/auth/delete', {
           headers: { 'x-auth-token': token }
         });
 
@@ -68,10 +68,10 @@ const Dashboard = () => {
     e.preventDefault();
     try {
       if (user.role === 'TEACHER') {
-        await axios.post('https://edunexus-api-ci68.onrender.com/api/classes/create', { ...formData, teacherId: user._id });
+        await axios.post('https://https://edunexus-api-o8qg.onrender.com/api/classes/create', { ...formData, teacherId: user._id });
         alert('Classroom Created Successfully!');
       } else {
-        await axios.post('https://edunexus-api-ci68.onrender.com/api/classes/join', { code: formData.code, studentId: user._id });
+        await axios.post('https://https://edunexus-api-o8qg.onrender.com/api/classes/join', { code: formData.code, studentId: user._id });
         alert('Joined Class Successfully!');
       }
       setShowModal(false);

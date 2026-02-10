@@ -13,7 +13,7 @@ const AnalyticsTab = ({ classId, user }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`https://edunexus-api-ci68.onrender.com/api/classes/${classId}/analytics`);
+        const res = await axios.get(`https://https://edunexus-api-o8qg.onrender.com/api/classes/${classId}/analytics`);
         setData(res.data);
       } catch (err) { console.error(err); }
     };

@@ -16,7 +16,7 @@ const Login = () => {
     setError('');
     
     try {
-      const res = await axios.post('https://edunexus-api-ci68.onrender.com/api/auth/login', { email, password });
+      const res = await axios.post('https://https://edunexus-api-o8qg.onrender.com/api/auth/login', { email, password });
       localStorage.setItem('userInfo', JSON.stringify(res.data));
       navigate('/dashboard');
     } catch (err) {
