@@ -14,7 +14,7 @@ const Register = () => {
     try {
       await axios.post('https://https://edunexus-api-o8qg.onrender.com/api/auth/register', { 
         name, email, password, role 
-      });
+      });//updated url
       alert('Registration Successful! Please Login.');
       navigate('/login');
     } catch (err) {
