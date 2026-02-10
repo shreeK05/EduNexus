@@ -6,7 +6,7 @@ const sendEmail = require('../utils/sendEmail');
 // @desc    Create Assignment & Notify Students
 const createAssignment = async (req, res) => {
   const { classId, title, description, dueDate } = req.body;
-  const fileUrl = req.file ? `https://https://edunexus-api-o8qg.onrender.com/uploads/${req.file.filename}` : null;
+  const fileUrl = req.file ? `https://edunexus-api-o8qg.onrender.com/uploads/${req.file.filename}` : null;
 
   try {
     const newAssignment = new Assignment({ classId, title, description, dueDate, fileUrl });
@@ -62,7 +62,7 @@ const getAssignments = async (req, res) => {
 // @desc    Submit Assignment
 const submitAssignment = async (req, res) => {
     const { assignmentId, studentId } = req.body;
-    const fileUrl = req.file ? `https://https://edunexus-api-o8qg.onrender.com/uploads/${req.file.filename}` : null;
+    const fileUrl = req.file ? `https://edunexus-api-o8qg.onrender.com/uploads/${req.file.filename}` : null;
     try {
         const submission = new Submission({ assignmentId, studentId, fileUrl });
         await submission.save();

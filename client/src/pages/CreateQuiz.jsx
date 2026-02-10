@@ -53,7 +53,7 @@ const CreateQuiz = () => {
         questions
       };
 
-      await axios.post('https://https://edunexus-api-o8qg.onrender.com/api/quizzes/create', payload);
+      await axios.post('https://edunexus-api-o8qg.onrender.com/api/quizzes/create', payload);
       alert('Quiz Created Successfully!');
       navigate(`/class/${classId}`);
     } catch (err) {

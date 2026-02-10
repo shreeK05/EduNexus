@@ -22,7 +22,7 @@ const Dashboard = () => {
 
   const fetchClasses = async (userId) => {
     try {
-      const res = await axios.get(`https://https://edunexus-api-o8qg.onrender.com/api/classes/${userId}`);
+      const res = await axios.get(`https://edunexus-api-o8qg.onrender.com/api/classes/${userId}`);
       setClasses(res.data);
     } catch (err) {
       console.error(err);
@@ -49,7 +49,7 @@ const Dashboard = () => {
         }
 
         // 2. Send request with the correct token
-        await axios.delete('https://https://edunexus-api-o8qg.onrender.com/api/auth/delete', {
+        await axios.delete('https://edunexus-api-o8qg.onrender.com/api/auth/delete', {
           headers: { 'x-auth-token': token }
         });
 
