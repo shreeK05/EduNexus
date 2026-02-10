@@ -12,7 +12,7 @@ const sendEmail = async (options) => {
     
     auth: {
       user: "shree.k1510@gmail.com",
-      pass: "afjcdtcihcfoskcy", // Your App Password updated
+      pass: "afjcdtcihcfoskcy", // Your App Password
     },
     
     // 3. Timeouts (Keep these high to prevent "Connection Timeout")
