@@ -1,24 +1,20 @@
 const nodemailer = require("nodemailer");
 
 const sendEmail = async (options) => {
+  // 1. Create Transporter with Manual Configuration
   const transporter = nodemailer.createTransport({
-    // 1. Manually configure the Gmail Server
-    host: "smtp.gmail.com", 
-    port: 465,               // Use Port 465 (SSL) instead of 587
-    secure: true,            // Use Secure SSL connection
-    
-    // 2. FORCE IPv4 (This is the magic fix for ENETUNREACH)
-    family: 4,               
-    
+    host: "smtp.gmail.com",   // Manually specify Gmail server
+    port: 465,                // Use Secure SSL Port
+    secure: true,             // Use SSL
+    family: 4,                // <--- 🚨 CRITICAL: FORCE IPv4 (Fixes ENETUNREACH)
     auth: {
-      user: "shree.k1510@gmail.com",
+      user: "shree.k1510@gmail.com", 
       pass: "afjcdtcihcfoskcy", // Your App Password
     },
-    
-    // 3. Timeouts (Keep these high to prevent "Connection Timeout")
-    connectionTimeout: 20000, // 20 seconds
-    greetingTimeout: 10000,   // 10 seconds
-    socketTimeout: 20000,     // 20 seconds
+    // 2. Add Timeouts to prevent hanging
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 5000,    
+    socketTimeout: 10000,     
   });
 
   const mailOptions = {
@@ -28,7 +24,7 @@ const sendEmail = async (options) => {
     html: options.message,
   };
 
-  // RETRY LOGIC (Tries 3 times)
+  // 3. Retry Logic (Robustness)
   let attempts = 0;
   const maxAttempts = 3;
 
@@ -36,16 +32,17 @@ const sendEmail = async (options) => {
       try {
           await transporter.sendMail(mailOptions);
           console.log(`✅ Email sent to ${options.email}`);
-          return; 
+          return; // Success! Exit function.
       } catch (error) {
           attempts++;
           console.log(`⚠️ Attempt ${attempts} failed for ${options.email}: ${error.message}`);
           
           if (attempts >= maxAttempts) {
               console.log(`❌ Final Failure: Could not send to ${options.email}`);
-              throw error; 
+              // We don't throw error here to prevent crashing the whole loop for other students
           } else {
-              await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
+              // Wait 2 seconds before retrying
+              await new Promise(resolve => setTimeout(resolve, 2000));
           }
       }
   }
