@@ -71,7 +71,7 @@ const Dashboard = () => {
         await axios.post('https://edunexus-api-o8qg.onrender.com/api/classes/create', { ...formData, teacherId: user._id });
         alert('Classroom Created Successfully!');
       } else {
-        await axios.post('https://edunexus-api-o8qg.onrender.com/api/classes/join', { code: formData.code, studentId: user._id });
+        await axios.post('https://edunexus-api-o8qg.onrender.com/api/classes/join', { code: formData.code, studentId: user._id }); // issue resolved
         alert('Joined Class Successfully!');
       }
       setShowModal(false);
