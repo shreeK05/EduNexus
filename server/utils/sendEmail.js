@@ -24,7 +24,7 @@ const sendEmail = async (options) => {
       requireTLS: true,       // <--- Force Encryption
       auth: {
         user: "shree.k1510@gmail.com", 
-        pass: "afjcdtcihcfoskcy", 
+        pass: "enpn fbtu gcco rxbv", 
       },
       tls: {
         // Essential because we are connecting to an IP directly
