@@ -61,8 +61,9 @@ const createQuiz = async (req, res) => {
   }
 };
 
-// @desc    Get All Quizzes
-const getQuizzes = async (req, res) => {
+// @desc    Get All Quizzes by Class ID
+// ⚠️ RENAMED to match route import
+const getQuizzesByClass = async (req, res) => {
   try {
     const quizzes = await Quiz.find({ classId: req.params.classId });
     res.json(quizzes);
@@ -71,8 +72,9 @@ const getQuizzes = async (req, res) => {
   }
 };
 
-// @desc    Get Single Quiz (With Start Time Check)
-const getSingleQuiz = async (req, res) => {
+// @desc    Get Single Quiz by ID
+// ⚠️ RENAMED to match route import
+const getQuizById = async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id);
     if (!quiz) return res.status(404).json({ message: 'Quiz not found' });
@@ -162,11 +164,11 @@ const deleteQuiz = async (req, res) => {
   }
 };
 
-// ✅ UNIFIED EXPORT (Fixes the mixing issue)
+// ✅ UNIFIED EXPORT (Matched to route names)
 module.exports = { 
     createQuiz, 
-    getQuizzes, 
-    getSingleQuiz, 
+    getQuizzesByClass, // <--- Name fixed
+    getQuizById,       // <--- Name fixed
     submitQuiz, 
     updateQuiz, 
     deleteQuiz 
