@@ -1,18 +1,24 @@
-// server/routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
+const { 
+    registerUser, 
+    loginUser, 
+    getUserProfile 
+} = require('../controllers/authController');
 
-// Import middleware to protect routes
-const auth = require('../middleware/auth'); 
+// ✅ CORRECT IMPORT: Must point to '../middleware/auth' (NOT authMiddleware)
+const { protect } = require('../middleware/auth'); 
 
-// Import controller functions (Make sure deleteAccount is added here)
-const { registerUser, loginUser, deleteAccount } = require('../controllers/authController');
+// Debugging check (Logs to Render console if something is missing)
+if (!protect) {
+    console.error("❌ CRITICAL ERROR: 'protect' is undefined in authRoutes.js. Check middleware/auth.js export.");
+}
 
-// Public Routes
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.get('/profile', protect, getUserProfile);
 
-// Private Route (Delete Account) - Protected by 'auth' middleware
-router.delete('/delete', auth, deleteAccount);
+// If you have a delete route causing the crash, ensure the controller exists
+// router.delete('/:id', protect, deleteUser); <--- Only keep this if you created a deleteUser controller
 
 module.exports = router;
