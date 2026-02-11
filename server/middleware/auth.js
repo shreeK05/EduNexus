@@ -1,25 +1,28 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User'); 
 
-module.exports = function (req, res, next) {
-  // Get token from header
-  const token = req.header('x-auth-token');
+const protect = async (req, res, next) => {
+  let token;
 
-  // Check if not token
-  if (!token) {
-    return res.status(401).json({ msg: 'No token, authorization denied' });
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.id).select('-password');
+      next();
+    } catch (error) {
+      console.error(error);
+      res.status(401).json({ message: 'Not authorized, token failed' });
+    }
   }
 
-  // Verify token
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "mysecrettoken");
-    
-    // --- FIX IS HERE ---
-    // Your generateToken function creates { id: ... }
-    // So 'decoded' already HAS the id. We don't need 'decoded.user'.
-    req.user = decoded; 
-    
-    next();
-  } catch (err) {
-    res.status(401).json({ msg: 'Token is not valid' });
+  if (!token) {
+    res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
+
+// 🚨 CRITICAL: Use named export with curly braces
+module.exports = { protect };
