@@ -1,21 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
+
+// ✅ CORRECT IMPORT: Pointing to 'auth.js' inside the 'middleware' folder
+const { protect } = require('../middleware/auth'); 
+
 const { 
     createQuiz, 
     getQuizzesByClass, 
     getQuizById, 
     submitQuiz,
-    updateQuiz, // <--- Import this
-    deleteQuiz  // <--- Import this
+    updateQuiz, 
+    deleteQuiz  
 } = require('../controllers/quizController');
 
+// Routes
 router.post('/create', protect, createQuiz);
-router.get('/class/:classId', protect, getQuizzesByClass);
-router.get('/:id', protect, getQuizById);
-router.post('/:id/submit', protect, submitQuiz);
+router.get('/class/:classId', protect, getQuizzesByClass); // Matches controller
+router.get('/:id', protect, getQuizById); // Matches controller
+router.post('/submit', protect, submitQuiz);
 
-// ✅ NEW ROUTES FOR EDIT & DELETE
+// Edit & Delete Routes
 router.put('/:id', protect, updateQuiz);
 router.delete('/:id', protect, deleteQuiz);
 
