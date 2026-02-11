@@ -144,4 +144,51 @@ const submitQuiz = async (req, res) => {
   }
 };
 
-module.exports = { createQuiz, getQuizzes, getSingleQuiz, submitQuiz };
+// ... existing code ...
+
+// @desc    Update a Quiz
+// @route   PUT /api/quizzes/:id
+exports.updateQuiz = async (req, res) => {
+  try {
+    const { title, questions, duration, startDate } = req.body;
+    
+    // Find quiz and update it
+    const quiz = await Quiz.findById(req.params.id);
+
+    if (!quiz) {
+      return res.status(404).json({ message: "Quiz not found" });
+    }
+
+    // Update fields
+    quiz.title = title || quiz.title;
+    quiz.questions = questions || quiz.questions;
+    quiz.duration = duration || quiz.duration;
+    quiz.startDate = startDate || quiz.startDate;
+
+    const updatedQuiz = await quiz.save();
+    res.json(updatedQuiz);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// @desc    Delete a Quiz
+// @route   DELETE /api/quizzes/:id
+exports.deleteQuiz = async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id);
+
+    if (!quiz) {
+      return res.status(404).json({ message: "Quiz not found" });
+    }
+
+    await quiz.deleteOne(); // Deletes the quiz from MongoDB
+    res.json({ message: "Quiz removed" });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports = { createQuiz, getQuizzes, getSingleQuiz, submitQuiz, updateQuiz, deleteQuiz };

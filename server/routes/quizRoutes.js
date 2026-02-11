@@ -1,20 +1,22 @@
 const express = require('express');
 const router = express.Router();
+const { protect } = require('../middleware/authMiddleware');
 const { 
-  createQuiz, 
-  getQuizzes, 
-  getSingleQuiz, 
-  submitQuiz 
+    createQuiz, 
+    getQuizzesByClass, 
+    getQuizById, 
+    submitQuiz,
+    updateQuiz, // <--- Import this
+    deleteQuiz  // <--- Import this
 } = require('../controllers/quizController');
 
-// Check if functions are loaded (Debug log)
-if (!createQuiz || !getQuizzes || !getSingleQuiz || !submitQuiz) {
-    console.error("❌ Error: One or more Quiz Controller functions are undefined. Check quizController.js exports.");
-}
+router.post('/create', protect, createQuiz);
+router.get('/class/:classId', protect, getQuizzesByClass);
+router.get('/:id', protect, getQuizById);
+router.post('/:id/submit', protect, submitQuiz);
 
-router.post('/create', createQuiz);
-router.get('/:classId', getQuizzes);     // <--- This was likely line 15 causing the error
-router.get('/single/:id', getSingleQuiz);
-router.post('/submit', submitQuiz);
+// ✅ NEW ROUTES FOR EDIT & DELETE
+router.put('/:id', protect, updateQuiz);
+router.delete('/:id', protect, deleteQuiz);
 
 module.exports = router;
