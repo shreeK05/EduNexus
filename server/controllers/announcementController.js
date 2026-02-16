@@ -42,7 +42,7 @@ const createAnnouncement = async (req, res) => {
               </div>
               
               <div style="text-align: center; margin-top: 30px;">
-                <a href="https://edu-nexus-teal.vercel.app/class/${classId}" style="background-color: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);">View Class</a>
+                <a href="https://edu-nexus-rho.vercel.app/class/${classId}" style="background-color: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);">View Class</a>
               </div>
               
               <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 30px 0;">

@@ -65,7 +65,7 @@ const createQuiz = async (req, res) => {
               </div>
               
               <div style="text-align: center; margin-top: 30px;">
-                <a href="https://edu-nexus-teal.vercel.app/class/${classId}" style="background-color: #9333ea; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);">Go to Quiz</a>
+                <a href="https://edu-nexus-rho.vercel.app/class/${classId}" style="background-color: #9333ea; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);">Go to Quiz</a>
               </div>
               
               <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 30px 0;">
@@ -246,7 +246,7 @@ const updateQuiz = async (req, res) => {
                 </div>
                 
                 <div style="text-align: center; margin-top: 30px;">
-                  <a href="https://edu-nexus-teal.vercel.app/class/${classroom._id}" style="background-color: #f59e0b; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);">View Updated Quiz</a>
+                  <a href="https://edu-nexus-rho.vercel.app/class/${classroom._id}" style="background-color: #f59e0b; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);">View Updated Quiz</a>
                 </div>
                 
                 <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 30px 0;">
