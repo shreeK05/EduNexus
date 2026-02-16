@@ -18,19 +18,17 @@ const server = http.createServer(app); // <--- WRAP APP IN SERVER
 // 1. Setup Socket.io
 const io = new Server(server, {
   cors: {
-    origin: ["https://edu-nexus-rho.vercel.app", "http://localhost:5173"],
+    origin: "*",
     methods: ["GET", "POST"],
-    credentials: true
+    credentials: false
   }
 });
 
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: ["https://edu-nexus-rho.vercel.app", "http://localhost:5173"],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: "*",
+  credentials: false
 }));
 app.use('/uploads', express.static('uploads'));
 
