@@ -27,7 +27,7 @@ const Login = () => {
     setError('');
 
     try {
-      const res = await axios.post('http://localhost:10000/api/auth/login', { email, password });
+      const res = await axios.post('https://edunexus-api-d69c.onrender.com/api/auth/login', { email, password });
       const user = res.data;
 
       // --- STRICT ROLE CHECK ---

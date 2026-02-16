@@ -18,7 +18,7 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://localhost:10000/api/auth/register', { name, email, password, role });
+      await axios.post('https://edunexus-api-d69c.onrender.com/api/auth/register', { name, email, password, role });
       alert('Registration Successful! Please Login.');
       navigate(`/login?role=${role}`); // Redirect to login with correct role
     } catch (err) {

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import { ShieldAlert, AlertTriangle, Play, Pause, Lock, Unlock, Eye, Activity } from 'lucide-react';
 
-const socket = io.connect("http://localhost:10000");
+const socket = io.connect("https://edunexus-api-d69c.onrender.com");
 
 const LiveProctoring = () => {
   const { quizId } = useParams();

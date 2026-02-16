@@ -17,8 +17,8 @@ const AnalyticsTab = ({ classId }) => {
 
         // Parallel fetching for optimized loading
         const [analyticsRes, classRes] = await Promise.all([
-          axios.get(`http://localhost:10000/api/classes/${classId}/analytics`, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(`http://localhost:10000/api/classes/details/${classId}`, { headers: { Authorization: `Bearer ${token}` } })
+          axios.get(`https://edunexus-api-d69c.onrender.com/api/classes/${classId}/analytics`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`https://edunexus-api-d69c.onrender.com/api/classes/details/${classId}`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
 
         setData({ ...analyticsRes.data, totalStudents: classRes.data.students.length });
