@@ -7,9 +7,23 @@ const sendEmail = async (options) => {
 
     const msg = {
       to: options.email,
-      from: process.env.EMAIL_FROM || 'noreply@edunexus.com', // Use verified sender
+      from: {
+        email: process.env.EMAIL_FROM || 'shree.k1510@gmail.com',
+        name: 'EduNexus LMS'
+      },
       subject: options.subject,
       html: options.message,
+      // Anti-spam headers
+      categories: ['edunexus', 'notification'],
+      customArgs: {
+        app: 'edunexus',
+        environment: 'production'
+      },
+      // Improve deliverability
+      trackingSettings: {
+        clickTracking: { enable: false },
+        openTracking: { enable: false }
+      }
     };
 
     await sgMail.send(msg);
