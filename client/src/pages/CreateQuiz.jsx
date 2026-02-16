@@ -61,7 +61,7 @@ const CreateQuiz = () => {
       };
 
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-      await axios.post('https://edunexus-api-d69c.onrender.com/api/quizzes/create', payload, {
+      await axios.post('https://edunexus-api-w6xc.onrender.com/api/quizzes/create', payload, {
         headers: { Authorization: `Bearer ${userInfo?.token}` }
       });
       alert('Quiz Published Successfully! 🚀');

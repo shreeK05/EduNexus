@@ -5,7 +5,7 @@ import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import io from 'socket.io-client';
 import { Settings, Lock, AlertTriangle, Eye, ShieldCheck, Maximize2 } from 'lucide-react';
 
-const socket = io.connect("https://edunexus-api-d69c.onrender.com");
+const socket = io.connect("https://edunexus-api-w6xc.onrender.com");
 
 const TakeQuiz = () => {
   const { quizId } = useParams();
@@ -45,7 +45,7 @@ const TakeQuiz = () => {
       try {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         const token = userInfo ? userInfo.token : null;
-        const res = await axios.get(`https://edunexus-api-d69c.onrender.com/api/quizzes/single/${quizId}`, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/quizzes/single/${quizId}`, { headers: { Authorization: `Bearer ${token}` } });
 
         if (new Date() > new Date(res.data.dueDate)) {
           alert("⛔ This quiz has expired and is no longer accepting submissions.");
@@ -106,7 +106,7 @@ const TakeQuiz = () => {
     try {
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
       const token = userInfo ? userInfo.token : null;
-      const res = await axios.post('https://edunexus-api-d69c.onrender.com/api/quizzes/submit', { quizId, studentId: user._id, answers }, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.post('https://edunexus-api-w6xc.onrender.com/api/quizzes/submit', { quizId, studentId: user._id, answers }, { headers: { Authorization: `Bearer ${token}` } });
       alert(`Score: ${res.data.score}/${res.data.total}`);
       navigate(-1);
     } catch (err) { alert('Error submitting'); }

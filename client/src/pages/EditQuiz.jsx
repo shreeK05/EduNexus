@@ -16,7 +16,7 @@ const EditQuiz = () => {
             try {
                 const userInfo = JSON.parse(localStorage.getItem('userInfo'));
                 const config = { headers: { Authorization: `Bearer ${userInfo?.token}` } };
-                const res = await axios.get(`https://edunexus-api-d69c.onrender.com/api/quizzes/${quizId}`, config);
+                const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/quizzes/${quizId}`, config);
 
                 // Check if quiz has already started
                 const now = new Date();
@@ -56,7 +56,7 @@ const EditQuiz = () => {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
             const config = { headers: { Authorization: `Bearer ${userInfo?.token}` } };
 
-            await axios.put(`https://edunexus-api-d69c.onrender.com/api/quizzes/${quizId}`, quiz, config);
+            await axios.put(`https://edunexus-api-w6xc.onrender.com/api/quizzes/${quizId}`, quiz, config);
             alert('✅ Quiz updated successfully!');
             navigate(`/class/${classId}`);
         } catch (err) {

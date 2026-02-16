@@ -44,10 +44,10 @@ const Classroom = () => {
       try {
         const config = { headers: { Authorization: `Bearer ${storedUser.token}` } };
         const [classRes, assignRes, announceRes, quizRes] = await Promise.all([
-          axios.get(`https://edunexus-api-d69c.onrender.com/api/classes/details/${id}`, config),
-          axios.get(`https://edunexus-api-d69c.onrender.com/api/assignments/${id}`, config),
-          axios.get(`https://edunexus-api-d69c.onrender.com/api/announcements/${id}`, config),
-          axios.get(`https://edunexus-api-d69c.onrender.com/api/quizzes/class/${id}`, config)
+          axios.get(`https://edunexus-api-w6xc.onrender.com/api/classes/details/${id}`, config),
+          axios.get(`https://edunexus-api-w6xc.onrender.com/api/assignments/${id}`, config),
+          axios.get(`https://edunexus-api-w6xc.onrender.com/api/announcements/${id}`, config),
+          axios.get(`https://edunexus-api-w6xc.onrender.com/api/quizzes/class/${id}`, config)
         ]);
 
         console.log('📚 Assignments fetched:', assignRes.data);
@@ -75,7 +75,7 @@ const Classroom = () => {
   const handleStartClass = async () => {
     if (user.role !== 'TEACHER') return;
     try {
-      await axios.put(`https://edunexus-api-d69c.onrender.com/api/classes/${id}/live`, { isLive: true }, getAuthHeader());
+      await axios.put(`https://edunexus-api-w6xc.onrender.com/api/classes/${id}/live`, { isLive: true }, getAuthHeader());
       window.open(`/video/${id}`, '_blank');
       setClassroom(prev => ({ ...prev, isLive: true }));
     } catch (err) { alert("Error starting class"); }
@@ -83,7 +83,7 @@ const Classroom = () => {
 
   const handleJoinClass = async () => {
     try {
-      const res = await axios.get(`https://edunexus-api-d69c.onrender.com/api/classes/details/${id}`, getAuthHeader());
+      const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/classes/details/${id}`, getAuthHeader());
       console.log('🔴 Live Class Check - isLive:', res.data.isLive);
 
       if (res.data.isLive) {
@@ -102,7 +102,7 @@ const Classroom = () => {
   const handleDeleteClass = async () => {
     if (window.confirm("⚠️ Are you sure? This will permanently delete the classroom and all its data.")) {
       try {
-        await axios.delete(`https://edunexus-api-d69c.onrender.com/api/classes/${id}`, getAuthHeader());
+        await axios.delete(`https://edunexus-api-w6xc.onrender.com/api/classes/${id}`, getAuthHeader());
         alert("Classroom deleted successfully.");
         navigate('/dashboard');
       } catch (err) {
@@ -115,11 +115,11 @@ const Classroom = () => {
     e.preventDefault();
     if (!announcementContent.trim()) return;
     try {
-      await axios.post('https://edunexus-api-d69c.onrender.com/api/announcements/create', {
+      await axios.post('https://edunexus-api-w6xc.onrender.com/api/announcements/create', {
         classId: id, senderId: user._id, content: announcementContent
       }, getAuthHeader());
       setAnnouncementContent('');
-      const res = await axios.get(`https://edunexus-api-d69c.onrender.com/api/announcements/${id}`, getAuthHeader());
+      const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/announcements/${id}`, getAuthHeader());
       setAnnouncements(res.data);
     } catch (err) { alert('Failed to post announcement'); }
   };
@@ -127,7 +127,7 @@ const Classroom = () => {
   const handleDeleteQuiz = async (quizId) => {
     if (!window.confirm("Are you sure you want to delete this quiz?")) return;
     try {
-      await axios.delete(`https://edunexus-api-d69c.onrender.com/api/quizzes/${quizId}`, getAuthHeader());
+      await axios.delete(`https://edunexus-api-w6xc.onrender.com/api/quizzes/${quizId}`, getAuthHeader());
       setQuizzes(prev => prev.filter(q => q._id !== quizId));
       alert("Quiz deleted successfully");
     } catch (err) { alert("Failed to delete quiz"); }
@@ -136,7 +136,7 @@ const Classroom = () => {
   const handleDeleteAnnouncement = async (announceId) => {
     if (!window.confirm("Delete this announcement?")) return;
     try {
-      await axios.delete(`https://edunexus-api-d69c.onrender.com/api/announcements/${announceId}`, getAuthHeader());
+      await axios.delete(`https://edunexus-api-w6xc.onrender.com/api/announcements/${announceId}`, getAuthHeader());
       setAnnouncements(prev => prev.filter(a => a._id !== announceId));
       alert("Announcement deleted");
     } catch (err) { alert("Failed to delete announcement"); }
@@ -160,10 +160,10 @@ const Classroom = () => {
         }
       };
 
-      await axios.post('https://edunexus-api-d69c.onrender.com/api/assignments/create', formData, config);
+      await axios.post('https://edunexus-api-w6xc.onrender.com/api/assignments/create', formData, config);
       alert('Assignment Created!');
       setShowCreateModal(false);
-      const res = await axios.get(`https://edunexus-api-d69c.onrender.com/api/assignments/${id}`, getAuthHeader());
+      const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/assignments/${id}`, getAuthHeader());
       setAssignments(res.data);
     } catch (err) { alert('Failed to create assignment'); }
   };
@@ -171,7 +171,7 @@ const Classroom = () => {
   const handleRemoveStudent = async (studentId) => {
     if (!window.confirm("Are you sure you want to remove this student?")) return;
     try {
-      await axios.delete(`https://edunexus-api-d69c.onrender.com/api/classes/${id}/students/${studentId}`, getAuthHeader());
+      await axios.delete(`https://edunexus-api-w6xc.onrender.com/api/classes/${id}/students/${studentId}`, getAuthHeader());
       setClassroom(prev => ({
         ...prev,
         students: prev.students.filter(s => s._id !== studentId)
@@ -189,7 +189,7 @@ const Classroom = () => {
     try {
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
       const config = { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${userInfo?.token}` } };
-      await axios.post('https://edunexus-api-d69c.onrender.com/api/assignments/submit', formData, config);
+      await axios.post('https://edunexus-api-w6xc.onrender.com/api/assignments/submit', formData, config);
       alert('Work Submitted Successfully!');
       setSubmissionFile(null);
     } catch (err) { alert(err.response?.data?.message || 'Error submitting work'); }
@@ -197,7 +197,7 @@ const Classroom = () => {
 
   const handleViewSubmissions = async (assignmentId) => {
     try {
-      const res = await axios.get(`https://edunexus-api-d69c.onrender.com/api/assignments/${assignmentId}/submissions`, getAuthHeader());
+      const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/assignments/${assignmentId}/submissions`, getAuthHeader());
       setSubmissionsList(res.data);
       setShowSubmissionsModal(true);
     } catch (err) { alert('Error fetching submissions'); }
@@ -207,7 +207,7 @@ const Classroom = () => {
     const data = grades[submissionId];
     if (!data || !data.score) return alert("Please enter a score");
     try {
-      await axios.put(`https://edunexus-api-d69c.onrender.com/api/assignments/grade/${submissionId}`, { grade: data.score, feedback: data.feedback }, getAuthHeader());
+      await axios.put(`https://edunexus-api-w6xc.onrender.com/api/assignments/grade/${submissionId}`, { grade: data.score, feedback: data.feedback }, getAuthHeader());
       alert("Graded Successfully!");
       setSubmissionsList(prev => prev.map(sub => sub._id === submissionId ? { ...sub, status: 'Graded', grade: data.score } : sub));
     } catch (err) { alert("Error saving grade"); }

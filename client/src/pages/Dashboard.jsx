@@ -29,7 +29,7 @@ const Dashboard = () => {
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
       const token = userInfo ? userInfo.token : null;
 
-      const res = await axios.get(`https://edunexus-api-d69c.onrender.com/api/classes/${userId}`, {
+      const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/classes/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setClasses(res.data);
@@ -61,10 +61,10 @@ const Dashboard = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       if (user.role === 'TEACHER') {
-        await axios.post('https://edunexus-api-d69c.onrender.com/api/classes/create', { ...formData, teacherId: user._id }, config);
+        await axios.post('https://edunexus-api-w6xc.onrender.com/api/classes/create', { ...formData, teacherId: user._id }, config);
         alert('Classroom Created Successfully!');
       } else {
-        await axios.post('https://edunexus-api-d69c.onrender.com/api/classes/join', { code: formData.code, studentId: user._id }, config);
+        await axios.post('https://edunexus-api-w6xc.onrender.com/api/classes/join', { code: formData.code, studentId: user._id }, config);
         alert('Joined Class Successfully!');
       }
       setShowModal(false);

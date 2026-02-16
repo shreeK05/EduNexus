@@ -46,7 +46,7 @@ const VideoCall = () => {
       onLeaveRoom: async () => {
         if (user && user.role === 'TEACHER') {
           try {
-            await axios.put(`https://edunexus-api-d69c.onrender.com/api/classes/${roomId}/live`, { isLive: false }, {
+            await axios.put(`https://edunexus-api-w6xc.onrender.com/api/classes/${roomId}/live`, { isLive: false }, {
               headers: { Authorization: `Bearer ${user.token}` }
             });
             console.log("Class Ended");
