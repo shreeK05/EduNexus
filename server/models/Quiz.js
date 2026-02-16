@@ -7,12 +7,13 @@ const QuizSchema = new mongoose.Schema({
     {
       question: String,
       options: [String],
-      correct: Number, // Index of correct option (0-3)
-      type: { type: String, default: 'single' }
+      correct: { type: [Number], required: true }, // Array of indices (e.g., [0, 2])
+      type: { type: String, default: 'single', enum: ['single', 'multi'] }
     }
   ],
   startDate: { type: Date, required: true }, // <--- START TIME
   dueDate: { type: Date, required: true },   // <--- END TIME (Expire)
+  reminderSent: { type: Boolean, default: false }, // Track if 30-min reminder was sent
   createdAt: { type: Date, default: Date.now }
 });
 

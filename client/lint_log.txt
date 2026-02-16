@@ -1,0 +1,117 @@
+﻿
+> client@0.0.0 lint
+> eslint .
+
+
+D:\FSD CP\EduNexus\client\src\components\AnalyticsTab.jsx
+  27:9  error  'quizzes' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\FSD CP\EduNexus\client\src\pages\Classroom.jsx
+   33:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  31 |     const storedUser = JSON.parse(localStorage.getItem('userInfo'));
+  32 |     if (storedUser) {
+> 33 |         setUser(storedUser);
+     |         ^^^^^^^ Avoid calling setState() directly within an effect
+  34 |     } else {
+  35 |         navigate('/'); 
+  36 |         return;  react-hooks/set-state-in-effect
+   65:16  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+   76:16  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+  116:14  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+  136:14  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+  144:14  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+  158:14  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+
+D:\FSD CP\EduNexus\client\src\pages\Dashboard.jsx
+  19:7  error  Error: Cannot access variable before it is declared
+
+`fetchClasses` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  17 |     } else {
+  18 |       setUser(storedUser);
+> 19 |       fetchClasses(storedUser._id);
+     |       ^^^^^^^^^^^^ `fetchClasses` accessed before it is declared
+  20 |     }
+  21 |   }, [navigate]);
+  22 |
+
+  21 |   }, [navigate]);
+  22 |
+> 23 |   const fetchClasses = async (userId) => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 24 |     try {
+     | ^^^^^^^^^
+> 25 |       const res = await axios.get(`https://edunexus-api-o8qg.onrender.com/api/classes/${userId}`);
+     | ^^^^^^^^^
+> 26 |       setClasses(res.data);
+     | ^^^^^^^^^
+> 27 |     } catch (err) {
+     | ^^^^^^^^^
+> 28 |       console.error(err);
+     | ^^^^^^^^^
+> 29 |     }
+     | ^^^^^^^^^
+> 30 |   };
+     | ^^^^^ `fetchClasses` is declared here
+  31 |
+  32 |   const handleLogout = () => {
+  33 |     localStorage.removeItem('userInfo');  react-hooks/immutability
+
+D:\FSD CP\EduNexus\client\src\pages\TakeQuiz.jsx
+    4:13  error    'tf' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    no-unused-vars
+   57:16  error    'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              no-unused-vars
+   74:17  error    Error: Cannot access variable before it is declared
+
+`triggerWarning` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  72 |         obj.forEach(prediction => {
+  73 |             if (forbidden.includes(prediction.class)) {
+> 74 |                 triggerWarning(`Detected: ${prediction.class}`);
+     |                 ^^^^^^^^^^^^^^ `triggerWarning` accessed before it is declared
+  75 |             }
+  76 |         });
+  77 |       }
+
+   87 |   }, [quizId, isFrozen]); // Re-run if frozen state changes
+   88 |
+>  89 |   const triggerWarning = (reason) => {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  90 |     // Alert Teacher
+      | ^^^^^^^^^^^^^^^^^^^^
+>  91 |     socket.emit('report_status', { 
+      ΓÇª
+      | ^^^^^^^^^^^^^^^^^^^^
+>  99 |     setWarnings(prev => prev + 1);
+      | ^^^^^^^^^^^^^^^^^^^^
+> 100 |   };
+      | ^^^^^ `triggerWarning` is declared here
+  101 |
+  102 |   const enterFullscreen = () => {
+  103 |     const elem = document.documentElement;  react-hooks/immutability
+   87:6   warning  React Hook useEffect has a missing dependency: 'triggerWarning'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/exhaustive-deps
+  132:14  error    'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              no-unused-vars
+
+D:\FSD CP\EduNexus\client\src\pages\VideoCall.jsx
+   1:17  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    no-unused-vars
+   8:9   error  'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            no-unused-vars
+  12:45  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  10 |   const user = JSON.parse(localStorage.getItem('userInfo'));
+  11 |   const userName = user ? user.name : 'Guest';
+> 12 |   const userId = user ? user._id : `guest_${Date.now()}`;
+     |                                             ^^^^^^^^^^ Cannot call impure function
+  13 |
+  14 |   const myMeeting = async (element) => {
+  15 |     // =========================================================  react-hooks/purity
+
+Γ£û 17 problems (16 errors, 1 warning)
+

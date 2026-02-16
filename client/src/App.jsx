@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Classroom from './pages/Classroom';
 import Register from "./pages/Register";
 import CreateQuiz from './pages/CreateQuiz';
+import EditQuiz from './pages/EditQuiz';
 import TakeQuiz from './pages/TakeQuiz';
 import LiveProctoring from './pages/LiveProctoring';
 import VideoCall from './pages/VideoCall';
@@ -15,18 +16,18 @@ function App() {
       <Routes>
         {/* LANDING PAGE IS NOW DEFAULT */}
         <Route path="/" element={<Home />} />
-        
+
         {/* AUTH ROUTES */}
-        // ✅ GOOD: Point to the correct components
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />  {/* Pointing to Login for now if you don't have Register */}
+        <Route path="/register" element={<Register />} />
 
         {/* PROTECTED ROUTES */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/class/:id" element={<Classroom />} />
-        
+
         {/* QUIZ ROUTES */}
         <Route path="/class/:classId/create-quiz" element={<CreateQuiz />} />
+        <Route path="/class/:classId/edit-quiz/:quizId" element={<EditQuiz />} />
         <Route path="/quiz/take/:quizId" element={<TakeQuiz />} />
         <Route path="/class/:quizId/live" element={<LiveProctoring />} />
 

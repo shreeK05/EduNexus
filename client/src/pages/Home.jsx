@@ -7,7 +7,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen font-sans selection:bg-indigo-100 selection:text-indigo-700">
-      
+
       {/* --- NAVBAR --- */}
       <nav className="fixed w-full z-50 glass">
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
@@ -17,7 +17,7 @@ const Home = () => {
             </div>
             <span className="text-xl font-bold tracking-tight text-slate-800">EduNexus</span>
           </div>
-          
+
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">Features</a>
             <a href="#about" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">About</a>
@@ -38,41 +38,41 @@ const Home = () => {
             </span>
             New: AI Proctoring 2.0
           </div>
-          
+
           <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 leading-[1.15] tracking-tight">
             The Future of <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Smart Learning.</span>
           </h1>
-          
+
           <p className="text-lg text-slate-600 leading-relaxed max-w-lg">
             Empower your institution with AI-driven insights, secure proctored exams, and seamless live classrooms. All in one platform.
           </p>
-          
+
           {/* UPDATED BUTTONS */}
           <div className="flex flex-col sm:flex-row gap-4 pt-2">
-            <button onClick={() => navigate('/login')} className="btn-primary flex items-center justify-center gap-2">
-              Student Login <ArrowRight size={18} />
+            <button onClick={() => navigate('/login?role=STUDENT')} className="btn-primary flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-indigo-200 transition transform hover:scale-105">
+              Student Login <ArrowRight size={20} />
             </button>
-            <button onClick={() => navigate('/login')} className="px-6 py-3 rounded-lg font-semibold text-slate-700 border border-slate-200 hover:bg-white hover:border-slate-300 transition bg-transparent">
+            <button onClick={() => navigate('/login?role=TEACHER')} className="px-8 py-4 rounded-xl font-bold text-slate-700 border-2 border-slate-200 hover:border-indigo-600 hover:text-indigo-600 transition bg-white shadow-sm hover:shadow-md">
               Teacher Login
             </button>
           </div>
         </div>
-        
+
         {/* Abstract Hero Visual */}
         <div className="md:w-1/2 relative animate-fade-in-up animate-delay-200">
           <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl opacity-20 blur-2xl animate-pulse"></div>
           <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
-             <div className="h-8 bg-slate-50 border-b border-slate-100 flex items-center px-4 gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                <div className="w-3 h-3 rounded-full bg-green-400"></div>
-             </div>
-             <img 
-               src="https://img.freepik.com/free-vector/online-learning-isometric-concept_1284-17947.jpg" 
-               alt="Dashboard Preview" 
-               className="w-full h-auto object-cover opacity-90"
-             />
+            <div className="h-8 bg-slate-50 border-b border-slate-100 flex items-center px-4 gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-400"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+              <div className="w-3 h-3 rounded-full bg-green-400"></div>
+            </div>
+            <img
+              src="https://img.freepik.com/free-vector/online-learning-isometric-concept_1284-17947.jpg"
+              alt="Dashboard Preview"
+              className="w-full h-auto object-cover opacity-90"
+            />
           </div>
         </div>
       </header>
@@ -80,7 +80,7 @@ const Home = () => {
       {/* --- FEATURES GRID --- */}
       <section id="features" className="py-24 bg-white relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
-        
+
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">Everything you need to teach.</h2>
@@ -137,9 +137,9 @@ const Home = () => {
             &copy; 2026 EduNexus Inc. All rights reserved.
           </div>
           <div className="flex gap-6 text-sm font-medium">
-             <a href="#" className="hover:text-white transition">Privacy</a>
-             <a href="#" className="hover:text-white transition">Terms</a>
-             <a href="#" className="hover:text-white transition">Contact</a>
+            <a href="#" className="hover:text-white transition">Privacy</a>
+            <a href="#" className="hover:text-white transition">Terms</a>
+            <a href="#" className="hover:text-white transition">Contact</a>
           </div>
         </div>
       </footer>
