@@ -1,29 +1,25 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Utility to send emails via SMTP (e.g. Gmail, Outlook, etc.)
- * Configured specifically for cloud hosting compatibility.
+ * Utility to send emails via SMTP.
+ * Automatically detects if using Gmail or Brevo based on EMAIL_SERVICE env var.
  */
 const sendEmail = async (options) => {
   try {
+    const isBrevo = process.env.EMAIL_SERVICE?.toLowerCase() === 'brevo';
+    
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: isBrevo ? 'smtp-relay.brevo.com' : 'smtp.gmail.com',
       port: 587,
-      secure: false, // Must be false for port 587
+      secure: false,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      // Force IPv4 to avoid ENETUNREACH errors on cloud providers
-      // which often have issues routing SMTP over IPv6
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-      dns_update: true,
-      family: 4, 
+      // Force IPv4
+      family: 4,
       tls: {
-        rejectUnauthorized: false,
-        minVersion: 'TLSv1.2'
+        rejectUnauthorized: false
       }
     });
 
@@ -35,7 +31,7 @@ const sendEmail = async (options) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ SMTP Success for ${options.email}`);
+    console.log(`✅ Email sent to ${options.email} via ${isBrevo ? 'Brevo' : 'Gmail'}`);
     return info;
   } catch (error) {
     console.error(`❌ SMTP Error for ${options.email}:`, error.message);
