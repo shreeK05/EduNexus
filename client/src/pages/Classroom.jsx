@@ -6,7 +6,7 @@ import AnalyticsTab from '../components/AnalyticsTab';
 import {
   ArrowLeft, Video, Trash2, Plus, FileText, Calendar, Users, BarChart2,
   MessageSquare, MoreVertical, X, Check, Download, AlertCircle, Clock, 
-  Send, Share2, Copy, Zap, GraduationCap, ShieldCheck, Terminal, ChevronRight, Activity
+  Send, Share2, Copy, Zap, GraduationCap, ShieldCheck, Terminal, ChevronRight, Activity, BookMarked
 } from 'lucide-react';
 
 const Classroom = () => {
@@ -30,8 +30,11 @@ const Classroom = () => {
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('userInfo'));
-    if (storedUser) setUser(storedUser);
-    else navigate('/');
+    if (!storedUser) {
+      navigate('/');
+      return;
+    }
+    setUser(storedUser);
 
     const fetchData = async () => {
       try {
@@ -46,7 +49,11 @@ const Classroom = () => {
         setAssignments(assignRes.data);
         setAnnouncements(announceRes.data);
         setQuizzes(quizRes.data);
-      } catch (err) { console.error(err); }
+      } catch (err) { 
+        console.error("Error fetching classroom data:", err);
+        // If 401, maybe token expired
+        if (err.response?.status === 401) navigate('/');
+      }
     };
     fetchData();
   }, [id, navigate]);
