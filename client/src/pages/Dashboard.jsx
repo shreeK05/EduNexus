@@ -125,7 +125,6 @@ const Dashboard = () => {
 
         <div className="px-4 pb-8 space-y-2">
           <div className="h-px bg-slate-800/50 mx-4 mb-6"></div>
-          <NavItem icon={<Settings size={20} />} label="Settings" />
           <button 
             onClick={handleLogout}
             className="flex items-center gap-4 px-4 py-3.5 text-rose-400 font-bold rounded-2xl hover:bg-rose-500/10 w-full transition-all group"
