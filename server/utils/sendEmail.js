@@ -2,22 +2,30 @@ const nodemailer = require('nodemailer');
 
 /**
  * Utility to send emails via SMTP.
- * Automatically detects if using Gmail or Brevo based on EMAIL_SERVICE env var.
+ * Optimized for Render.com to bypass network blocks.
  */
 const sendEmail = async (options) => {
   try {
     const isBrevo = process.env.EMAIL_SERVICE?.toLowerCase() === 'brevo';
     
+    // Render/Cloud Hosting Best Practice: Use Port 2525 for Brevo if 587 is blocked
+    const port = isBrevo ? 2525 : 587;
+    const host = isBrevo ? 'smtp-relay.brevo.com' : 'smtp.gmail.com';
+
+    console.log(`📡 SMTP: Attempting connection to ${host}:${port} (${isBrevo ? 'Brevo' : 'Gmail'})...`);
+
     const transporter = nodemailer.createTransport({
-      host: isBrevo ? 'smtp-relay.brevo.com' : 'smtp.gmail.com',
-      port: 587,
+      host: host,
+      port: port,
       secure: false,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      // Force IPv4
-      family: 4,
+      family: 4, // Force IPv4
+      connectionTimeout: 20000, // Increased timeout
+      greetingTimeout: 20000,
+      socketTimeout: 25000,
       tls: {
         rejectUnauthorized: false
       }
@@ -31,10 +39,10 @@ const sendEmail = async (options) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Email sent to ${options.email} via ${isBrevo ? 'Brevo' : 'Gmail'}`);
+    console.log(`✅ SMTP Success for ${options.email}`);
     return info;
   } catch (error) {
-    console.error(`❌ SMTP Error for ${options.email}:`, error.message);
+    console.error(`❌ SMTP Error for ${options.email}: ${error.message}`);
     throw error;
   }
 };

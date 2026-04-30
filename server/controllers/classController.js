@@ -100,7 +100,6 @@ const toggleLiveStatus = async (req, res) => {
       console.log(`🔴 Class is Live! Sending emails to ${classroom.students.length} students...`);
 
       classroom.students.forEach(student => {
-        // Send email to each student
         sendEmail({
           email: student.email,
           subject: `🔴 Live Class Started: ${classroom.name} - ${classroom.subject}`,
@@ -132,12 +131,7 @@ const toggleLiveStatus = async (req, res) => {
               <p style="color: #9ca3af; font-size: 12px; text-align: center;">This is an automated notification from EduNexus. Please do not reply to this email.</p>
             </div>
           `
-        })
-          .then(() => console.log(`✅ Email sent to ${student.email}`))
-          .catch(err => {
-            console.log(`❌ FAILED for ${student.email}`);
-            console.log(`REASON: ${err.message}`); // <--- THIS LOGS THE REAL ERROR
-          });
+        }).catch(err => console.error(`Failed to notify ${student.email}:`, err.message));
       });
     }
     // ------------------------------------------

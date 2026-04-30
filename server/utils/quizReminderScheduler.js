@@ -80,9 +80,7 @@ const scheduleQuizReminders = () => {
                 <p style="color: #9ca3af; font-size: 12px; text-align: center;">This is an automated reminder from EduNexus. Please do not reply to this email.</p>
               </div>
             `
-                    })
-                        .then(() => console.log(`✅ Reminder sent to ${student.email}`))
-                        .catch(err => console.log(`❌ Reminder failed for ${student.email}: ${err.message}`));
+                    }).catch(err => console.error(`Failed to notify ${student.email}:`, err.message));
                 });
 
                 // Mark reminder as sent
