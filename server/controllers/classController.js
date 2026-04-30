@@ -71,12 +71,17 @@ const getClassAnalytics = async (req, res) => {
     const assignments = await Assignment.find({ classId: id });
     const quizzes = await Quiz.find({ classId: id });
 
-    // Extract IDs to find related submissions and results
     const assignmentIds = assignments.map(a => a._id);
     const quizIds = quizzes.map(q => q._id);
 
-    const submissions = await Submission.find({ assignmentId: { $in: assignmentIds } });
-    const quizResults = await QuizResult.find({ quizId: { $in: quizIds } });
+    // ✅ Populating student details for the leaderboard and activity feed
+    const submissions = await Submission.find({ assignmentId: { $in: assignmentIds } })
+      .populate('studentId', 'name email')
+      .sort({ submittedAt: -1 });
+
+    const quizResults = await QuizResult.find({ quizId: { $in: quizIds } })
+      .populate('studentId', 'name email')
+      .sort({ createdAt: -1 });
 
     res.json({ assignments, submissions, quizzes, quizResults });
   } catch (error) { res.status(500).json({ message: error.message }); }
