@@ -156,6 +156,14 @@ const Classroom = () => {
     } catch (err) { alert('Termination failed'); }
   };
 
+  const handleDeleteAnnouncement = async (id) => {
+    if (!window.confirm("Delete this broadcast?")) return;
+    try {
+      await axios.delete(`https://edunexus-api-w6xc.onrender.com/api/announcements/${id}`, getAuthHeader());
+      setAnnouncements(prev => prev.filter(a => a._id !== id));
+    } catch (err) { alert('Failed to delete announcement'); }
+  };
+
   const handleRemoveStudent = async (studentId) => {
     if (!window.confirm("Sever link with this entity?")) return;
     try {
@@ -337,6 +345,14 @@ const Classroom = () => {
                               </p>
                             </div>
                           </div>
+                          {user.role === 'TEACHER' && (
+                            <button 
+                              onClick={() => handleDeleteAnnouncement(post._id)}
+                              className="p-2 text-slate-600 hover:text-rose-400 transition-colors"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          )}
                         </div>
                         <p className="text-slate-300 whitespace-pre-wrap leading-relaxed text-lg font-medium pl-16">
                           {post.content}
