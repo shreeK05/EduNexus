@@ -46,7 +46,9 @@ const MyClasses = async (req, res) => {
   try {
     const classes = await Classroom.find({
       $or: [{ teacherId: req.params.userId }, { students: req.params.userId }],
-    }).populate('teacherId', 'name');
+    })
+    .populate('teacherId', 'name email')
+    .populate('students', 'name email');
     res.json(classes);
   } catch (error) { res.status(500).json({ message: error.message }); }
 };

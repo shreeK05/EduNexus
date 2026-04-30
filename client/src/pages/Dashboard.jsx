@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', section: '', subject: '', code: '' });
   const [stats, setStats] = useState({ totalClasses: 0, totalStudents: 0, avgClassSize: 0 });
+  const [activities, setActivities] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
@@ -25,6 +26,7 @@ const Dashboard = () => {
     } else {
       setUser(storedUser);
       fetchClasses(storedUser._id);
+      fetchActivity(storedUser._id);
     }
   }, [navigate]);
 
@@ -43,6 +45,15 @@ const Dashboard = () => {
       const avgClassSize = totalClasses > 0 ? Math.round(totalStudents / totalClasses) : 0;
 
       setStats({ totalClasses, totalStudents, avgClassSize });
+    } catch (err) { console.error(err); }
+  };
+
+  const fetchActivity = async (userId) => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      const config = { headers: { Authorization: `Bearer ${userInfo?.token}` } };
+      const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/activity/${userId}`, config);
+      setActivities(res.data);
     } catch (err) { console.error(err); }
   };
 
@@ -106,7 +117,7 @@ const Dashboard = () => {
           <NavItem 
             icon={<Bell size={20} />} 
             label="Notifications" 
-            badge="3" 
+            badge={activities.length > 0 ? activities.length.toString() : null} 
             active={activeTab === 'notifications'} 
             onClick={() => setActiveTab('notifications')} 
           />
@@ -248,7 +259,10 @@ const Dashboard = () => {
               </div>
               <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {classes.flatMap(c => c.students || []).filter((v, i, a) => a.findIndex(t => t._id === v._id) === i).map((student, i) => (
+                  {classes.flatMap(c => c.students || [])
+                    .filter((v, i, a) => a.findIndex(t => t._id === v._id) === i)
+                    .filter(s => s._id !== user._id) // Filter out current user
+                    .map((student, i) => (
                     <div key={i} className="flex items-center gap-6 p-6 rounded-3xl bg-slate-900/40 border border-slate-800/50 group hover:border-indigo-500/30 transition-all">
                       <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-indigo-400 font-black group-hover:bg-indigo-500 group-hover:text-white transition-all">
                         {student.name ? student.name[0] : '?'}
@@ -259,6 +273,12 @@ const Dashboard = () => {
                       </div>
                     </div>
                   ))}
+                  {classes.length > 0 && classes.flatMap(c => c.students || []).filter(s => s._id !== user._id).length === 0 && (
+                    <div className="col-span-full text-center py-20 bg-slate-900/30 rounded-[2rem] border border-dashed border-slate-800">
+                      <Users size={48} className="mx-auto mb-4 text-slate-800" />
+                      <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No classmates found yet.</p>
+                    </div>
+                  )}
                   {classes.length === 0 && (
                     <p className="col-span-full text-center py-20 text-slate-500 font-bold uppercase tracking-widest text-xs">No students found.</p>
                   )}
@@ -285,9 +305,46 @@ const Dashboard = () => {
               <div className="px-8 py-6 border-b border-slate-800/50 bg-slate-900/30">
                 <h3 className="font-bold text-white text-lg tracking-tight">Recent Activity</h3>
               </div>
-              <div className="p-12 text-center">
-                <Bell size={48} className="mx-auto mb-6 text-slate-800" />
-                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No new notifications.</p>
+              <div className="p-8">
+                {activities.length === 0 ? (
+                  <div className="text-center py-20">
+                    <Bell size={48} className="mx-auto mb-6 text-slate-800" />
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No new notifications.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {activities.map((activity, i) => (
+                      <motion.div 
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        key={i} 
+                        className="flex items-center justify-between p-6 rounded-3xl bg-slate-900/40 border border-slate-800/50 hover:border-indigo-500/30 transition-all group"
+                      >
+                        <div className="flex items-center gap-6">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black shadow-lg ${activity.type === 'announcement' ? 'bg-amber-500' : 'bg-indigo-500'}`}>
+                            {activity.type === 'announcement' ? <Bell size={20} /> : <Terminal size={20} />}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">{activity.className}</span>
+                              <span className="w-1 h-1 bg-slate-800 rounded-full"></span>
+                              <span className="text-[10px] text-slate-500 font-bold uppercase">{new Date(activity.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <p className="font-bold text-white text-lg">{activity.content}</p>
+                            <p className="text-xs text-slate-500 font-medium">Posted by {activity.sender}</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => navigate(`/class/${activity.classId}`)}
+                          className="p-3 bg-slate-800/50 rounded-xl group-hover:bg-indigo-500 group-hover:text-white transition-all"
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -387,4 +444,4 @@ const StatCard = ({ label, value, icon, color }) => {
   );
 };
 
-export default Dashboard;
+export default Dashboard;

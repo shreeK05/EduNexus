@@ -11,6 +11,7 @@ const classRoutes = require('./routes/classRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const quizRoutes = require('./routes/quizRoutes');
+const activityRoutes = require('./routes/activityRoutes');
 
 const app = express();
 const server = http.createServer(app); // <--- WRAP APP IN SERVER
@@ -38,6 +39,7 @@ app.use('/api/classes', classRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/quizzes', quizRoutes);
+app.use('/api/activity', activityRoutes);
 
 // --- QUIZ REMINDER SCHEDULER ---
 const scheduleQuizReminders = require('./utils/quizReminderScheduler');
