@@ -33,8 +33,15 @@ const TakeQuiz = () => {
     if (storedUser) setUser(storedUser);
 
     if (storedUser) {
-      socket.emit('join_quiz', quizId);
-      socket.emit('report_status', { quizId, studentName: storedUser.name, status: 'Active', socketId: socket.id });
+      socket.on('connect', () => {
+        socket.emit('join_quiz', quizId);
+        socket.emit('report_status', { quizId, studentName: storedUser.name, status: 'Active', socketId: socket.id });
+      });
+      // Fallback if already connected
+      if (socket.connected) {
+        socket.emit('join_quiz', quizId);
+        socket.emit('report_status', { quizId, studentName: storedUser.name, status: 'Active', socketId: socket.id });
+      }
     }
 
     socket.on('student_action', (action) => {
@@ -52,10 +59,16 @@ const TakeQuiz = () => {
       try {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         const token = userInfo ? userInfo.token : null;
-        // ✅ Corrected URL: removed /single
         const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/quizzes/${quizId}`, { 
           headers: { Authorization: `Bearer ${token}` } 
         });
+
+        // 🛑 Check if already submitted
+        if (res.data.hasSubmitted) {
+          alert("You have already submitted this quiz!");
+          navigate('/dashboard');
+          return;
+        }
 
         if (new Date() > new Date(res.data.dueDate)) {
           navigate('/dashboard');
@@ -79,39 +92,60 @@ const TakeQuiz = () => {
         return () => clearInterval(interval);
       } catch (err) { 
         console.error("Failed to load quiz:", err);
-        alert("Failed to load quiz. Please check your connection.");
         navigate('/dashboard');
       }
     };
     fetchQuiz();
 
+    // 🕵️ NUCLEAR PROCTORING: Tab Switching & Focus Detection
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && !isFrozen) {
+        triggerWarning("Tab Switch Detected");
+        addLog("🚩 ALERT: Student left the exam tab");
+      }
+    };
+
+    const handleBlur = () => {
+      if (!isFrozen) {
+        triggerWarning("Window Focus Lost");
+        addLog("🚩 ALERT: Student switched window");
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleBlur);
+
     const runCoco = async () => {
       try {
         const net = await cocoSsd.load();
         addLog("🛡️ AI Proctoring Engine Online");
-        const interval = setInterval(() => { detect(net); }, 2000);
+        const interval = setInterval(() => { detect(net); }, 3000);
         return () => clearInterval(interval);
-      } catch (e) { addLog("❌ Proctoring Engine Error"); }
+      } catch (e) { 
+        console.error("AI Load Error:", e);
+        addLog("⚠️ AI Warming Up..."); 
+      }
     };
 
     const detect = async (net) => {
       if (videoRef.current && videoRef.current.readyState === 4 && !isFrozen) {
-        const obj = await net.detect(videoRef.current);
-        const forbidden = ['cell phone', 'mobile phone', 'book'];
-        obj.forEach(prediction => {
-          if (forbidden.includes(prediction.class)) {
-            triggerWarning(`Detected: ${prediction.class}`);
-            addLog(`🚩 Security Breach: ${prediction.class}`);
-          }
-        });
+        try {
+          const obj = await net.detect(videoRef.current);
+          const forbidden = ['cell phone', 'mobile phone', 'book', 'laptop'];
+          obj.forEach(prediction => {
+            if (forbidden.includes(prediction.class) && prediction.score > 0.6) {
+              triggerWarning(`Detected: ${prediction.class}`);
+              addLog(`🚩 Security Breach: ${prediction.class}`);
+            }
+          });
+        } catch (err) { console.error("Detection Error:", err); }
       }
     };
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 } })
+      navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240, frameRate: 15 } })
         .then(stream => { 
           if (videoRef.current) videoRef.current.srcObject = stream; 
-          // 📸 PERIODIC SNAPSHOTS FOR TEACHER
           const snapInterval = setInterval(() => {
             if (videoRef.current && videoRef.current.readyState === 4) {
               const canvas = document.createElement('canvas');
@@ -119,7 +153,7 @@ const TakeQuiz = () => {
               canvas.height = 120;
               const ctx = canvas.getContext('2d');
               ctx.drawImage(videoRef.current, 0, 0, 160, 120);
-              const snapshot = canvas.toDataURL('image/jpeg', 0.5);
+              const snapshot = canvas.toDataURL('image/jpeg', 0.4);
               socket.emit('report_status', { 
                 quizId, 
                 studentName: storedUser?.name, 
@@ -128,14 +162,19 @@ const TakeQuiz = () => {
                 socketId: socket.id 
               });
             }
-          }, 10000); // Every 10 seconds
+          }, 8000);
           return () => clearInterval(snapInterval);
+        }).catch(err => {
+          addLog("❌ Camera Permission Denied");
+          alert("Camera access is REQUIRED for this exam.");
         });
     }
     runCoco();
 
     return () => { 
       socket.off('student_action');
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleBlur);
     };
   }, [quizId, isFrozen]);
 

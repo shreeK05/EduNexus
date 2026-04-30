@@ -100,6 +100,12 @@ const getQuizById = async (req, res) => {
     const quiz = await Quiz.findById(req.params.id);
     if (!quiz) return res.status(404).json({ message: 'Quiz not found' });
 
+    // Check if student has already submitted
+    const existingResult = await QuizResult.findOne({ 
+      quizId: req.params.id, 
+      studentId: req.user.id // From protect middleware
+    });
+
     const now = new Date();
     const start = new Date(quiz.startDate);
 
@@ -108,7 +114,11 @@ const getQuizById = async (req, res) => {
       return res.status(403).json({ message: `Quiz starts at ${start.toLocaleString()}` });
     }
 
-    res.json(quiz);
+    // Convert to plain object to add custom fields
+    const quizObj = quiz.toObject();
+    quizObj.hasSubmitted = !!existingResult;
+
+    res.json(quizObj);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
