@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+// SMTP Utility v1.0.4 - Optimized for Render + Brevo
 
 /**
  * Utility to send emails via SMTP.
