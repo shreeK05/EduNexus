@@ -6,7 +6,7 @@ import AnalyticsTab from '../components/AnalyticsTab';
 import {
   ArrowLeft, Video, Trash2, Plus, FileText, Calendar, Users, BarChart2,
   MessageSquare, MoreVertical, X, Check, Download, AlertCircle, Clock, 
-  Send, Share2, Copy, Zap, GraduationCap, ShieldCheck, Terminal
+  Send, Share2, Copy, Zap, GraduationCap, ShieldCheck, Terminal, ChevronRight, Activity
 } from 'lucide-react';
 
 const Classroom = () => {
@@ -89,6 +89,79 @@ const Classroom = () => {
   const copyCode = () => {
     navigator.clipboard.writeText(classroom.code);
     alert('Access code copied to neural link.');
+  };
+
+  const handleCreateAssignment = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('classId', id);
+    formData.append('title', newAssignment.title);
+    formData.append('description', newAssignment.description);
+    formData.append('dueDate', newAssignment.dueDate);
+    if (newAssignment.file) formData.append('file', newAssignment.file);
+
+    try {
+      await axios.post('https://edunexus-api-w6xc.onrender.com/api/assignments/create', formData, {
+        headers: { ...getAuthHeader().headers, 'Content-Type': 'multipart/form-data' }
+      });
+      setShowCreateModal(false);
+      const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/assignments/${id}`, getAuthHeader());
+      setAssignments(res.data);
+    } catch (err) { alert('Failed to deploy directive'); }
+  };
+
+  const submitWork = async (assignmentId) => {
+    if (!submissionFile) return alert('Select a payload to uplink.');
+    const formData = new FormData();
+    formData.append('assignmentId', assignmentId);
+    formData.append('studentId', user._id);
+    formData.append('file', submissionFile);
+
+    try {
+      await axios.post('https://edunexus-api-w6xc.onrender.com/api/assignments/submit', formData, {
+        headers: { ...getAuthHeader().headers, 'Content-Type': 'multipart/form-data' }
+      });
+      alert('Payload uplinked successfully.');
+      setSubmissionFile(null);
+    } catch (err) { alert('Uplink failed'); }
+  };
+
+  const handleViewSubmissions = async (assignmentId) => {
+    try {
+      const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/assignments/submissions/${assignmentId}`, getAuthHeader());
+      setSubmissionsList(res.data);
+      setShowSubmissionsModal(true);
+    } catch (err) { alert('Failed to inspect submissions'); }
+  };
+
+  const submitGrade = async (submissionId) => {
+    const data = grades[submissionId];
+    if (!data?.score) return alert('Input score for authorize.');
+    try {
+      await axios.put(`https://edunexus-api-w6xc.onrender.com/api/assignments/grade/${submissionId}`, {
+        grade: data.score, feedback: data.feedback
+      }, getAuthHeader());
+      alert('Grade authorized.');
+      // Refresh list
+      const currentSub = submissionsList.find(s => s._id === submissionId);
+      if (currentSub) handleViewSubmissions(currentSub.assignmentId);
+    } catch (err) { alert('Grade authorization failed'); }
+  };
+
+  const handleDeleteQuiz = async (quizId) => {
+    if (!window.confirm("Terminate this assessment module?")) return;
+    try {
+      await axios.delete(`https://edunexus-api-w6xc.onrender.com/api/quizzes/${quizId}`, getAuthHeader());
+      setQuizzes(prev => prev.filter(q => q._id !== quizId));
+    } catch (err) { alert('Termination failed'); }
+  };
+
+  const handleRemoveStudent = async (studentId) => {
+    if (!window.confirm("Sever link with this entity?")) return;
+    try {
+      await axios.delete(`https://edunexus-api-w6xc.onrender.com/api/classes/${id}/students/${studentId}`, getAuthHeader());
+      setClassroom(prev => ({ ...prev, students: prev.students.filter(s => s._id !== studentId) }));
+    } catch (err) { alert('Link severance failed'); }
   };
 
   if (!classroom || !user) return <div className="h-screen bg-slate-950 flex items-center justify-center"><div className="w-12 h-12 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div></div>;
