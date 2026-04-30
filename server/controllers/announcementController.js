@@ -49,7 +49,7 @@ const createAnnouncement = async (req, res) => {
               <p style="color: #9ca3af; font-size: 12px; text-align: center;">This is an automated notification from EduNexus. Please do not reply to this email.</p>
             </div>
           `
-        });
+        }).catch(err => console.error(`Failed to notify ${student.email}:`, err.message));
       });
     }
 
