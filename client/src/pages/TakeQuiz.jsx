@@ -52,7 +52,8 @@ const TakeQuiz = () => {
       try {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         const token = userInfo ? userInfo.token : null;
-        const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/quizzes/single/${quizId}`, { 
+        // ✅ Corrected URL: removed /single
+        const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/quizzes/${quizId}`, { 
           headers: { Authorization: `Bearer ${token}` } 
         });
 
@@ -76,7 +77,11 @@ const TakeQuiz = () => {
         }, 1000);
 
         return () => clearInterval(interval);
-      } catch (err) { console.error(err); }
+      } catch (err) { 
+        console.error("Failed to load quiz:", err);
+        alert("Failed to load quiz. Please check your connection.");
+        navigate('/dashboard');
+      }
     };
     fetchQuiz();
 
@@ -103,12 +108,35 @@ const TakeQuiz = () => {
     };
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => { if (videoRef.current) videoRef.current.srcObject = stream; });
+      navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 } })
+        .then(stream => { 
+          if (videoRef.current) videoRef.current.srcObject = stream; 
+          // 📸 PERIODIC SNAPSHOTS FOR TEACHER
+          const snapInterval = setInterval(() => {
+            if (videoRef.current && videoRef.current.readyState === 4) {
+              const canvas = document.createElement('canvas');
+              canvas.width = 160;
+              canvas.height = 120;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(videoRef.current, 0, 0, 160, 120);
+              const snapshot = canvas.toDataURL('image/jpeg', 0.5);
+              socket.emit('report_status', { 
+                quizId, 
+                studentName: storedUser?.name, 
+                status: 'snapshot', 
+                image: snapshot,
+                socketId: socket.id 
+              });
+            }
+          }, 10000); // Every 10 seconds
+          return () => clearInterval(snapInterval);
+        });
     }
     runCoco();
 
-    return () => { socket.off('student_action'); };
+    return () => { 
+      socket.off('student_action');
+    };
   }, [quizId, isFrozen]);
 
   const addLog = (msg) => {

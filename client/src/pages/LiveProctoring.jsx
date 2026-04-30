@@ -39,13 +39,16 @@ const LiveProctoring = () => {
           newStatus = 'Active';
         }
 
+        const newImage = data.status === 'snapshot' ? data.image : (existing.image || null);
+
         return {
           ...prev,
           [data.socketId]: {
             ...existing,
             name: data.studentName || existing.name,
             status: newStatus,
-            logs: newLogs
+            logs: newLogs,
+            image: newImage
           }
         };
       });
@@ -170,12 +173,30 @@ const LiveProctoring = () => {
                         </div>
                       </div>
 
-                      {/* Log Area */}
-                      <div className="bg-slate-950/80 rounded-2xl p-4 h-40 overflow-y-auto mb-8 border border-slate-800/50 space-y-2">
-                        {student.logs.length === 0 ? (
+                      {/* Live Feed / Snapshot */}
+                      <div className="w-full aspect-video bg-slate-950 rounded-2xl mb-8 overflow-hidden border border-slate-800 relative group">
+                        {student.image ? (
+                          <img 
+                            src={student.image} 
+                            alt={student.name} 
+                            className="w-full h-full object-cover scale-x-[-1]"
+                          />
+                        ) : (
                           <div className="h-full flex flex-col items-center justify-center opacity-20">
-                            <Activity size={24} />
-                            <span className="text-[10px] font-bold tracking-widest mt-2 uppercase">No Alerts Detected</span>
+                            <Activity size={24} className="animate-pulse" />
+                            <span className="text-[10px] font-bold tracking-widest mt-2 uppercase italic">Feed Initializing...</span>
+                          </div>
+                        )}
+                        <div className="absolute top-3 left-3 flex items-center gap-2 bg-indigo-600/80 backdrop-blur-md px-2 py-1 rounded text-[8px] font-black tracking-widest text-white">
+                          <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> {student.image ? 'LIVE_SNAP' : 'AWAITING_SIGNAL'}
+                        </div>
+                      </div>
+
+                      {/* Log Area */}
+                      <div className="bg-slate-950/50 rounded-2xl p-4 h-32 overflow-y-auto mb-8 border border-slate-800/50 space-y-2">
+                        {student.logs.length === 0 ? (
+                          <div className="h-full flex flex-col items-center justify-center opacity-10">
+                            <span className="text-[10px] font-bold tracking-widest uppercase">No Alerts</span>
                           </div>
                         ) : (
                           student.logs.map((log, i) => (
