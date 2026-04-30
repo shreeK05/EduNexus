@@ -146,14 +146,15 @@ const TakeQuiz = () => {
       navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240, frameRate: 15 } })
         .then(stream => { 
           if (videoRef.current) videoRef.current.srcObject = stream; 
+          // 📸 OPTIMIZED FAST SNAPSHOTS FOR TEACHER (2s frequency)
           const snapInterval = setInterval(() => {
             if (videoRef.current && videoRef.current.readyState === 4) {
               const canvas = document.createElement('canvas');
-              canvas.width = 160;
-              canvas.height = 120;
+              canvas.width = 240; // Slightly larger for clarity
+              canvas.height = 180;
               const ctx = canvas.getContext('2d');
-              ctx.drawImage(videoRef.current, 0, 0, 160, 120);
-              const snapshot = canvas.toDataURL('image/jpeg', 0.4);
+              ctx.drawImage(videoRef.current, 0, 0, 240, 180);
+              const snapshot = canvas.toDataURL('image/jpeg', 0.3); // High compression for speed
               socket.emit('report_status', { 
                 quizId, 
                 studentName: storedUser?.name, 
@@ -162,7 +163,7 @@ const TakeQuiz = () => {
                 socketId: socket.id 
               });
             }
-          }, 8000);
+          }, 2000); // Faster frequency for "Live" feel
           return () => clearInterval(snapInterval);
         }).catch(err => {
           addLog("❌ Camera Permission Denied");
@@ -218,6 +219,10 @@ const TakeQuiz = () => {
     try {
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
       const token = userInfo ? userInfo.token : null;
+      
+      // 🚩 Notify teacher student is leaving
+      socket.emit('report_status', { quizId, studentName: user?.name, status: 'finished', socketId: socket.id });
+
       await axios.post('https://edunexus-api-w6xc.onrender.com/api/quizzes/submit', { 
         quizId, studentId: user._id, answers 
       }, { headers: { Authorization: `Bearer ${token}` } });

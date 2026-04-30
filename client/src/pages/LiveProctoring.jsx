@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
+import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldAlert, AlertTriangle, Lock, Unlock, 
@@ -14,8 +15,25 @@ const LiveProctoring = () => {
   const { quizId } = useParams();
   const navigate = useNavigate();
   const [students, setStudents] = useState({});
+  const [isTestEnded, setIsTestEnded] = useState(false);
 
   useEffect(() => {
+    // 🔍 Fetch Quiz Deadline
+    const checkDeadline = async () => {
+      try {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const token = userInfo ? userInfo.token : null;
+        const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/quizzes/${quizId}`, { 
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+        
+        const now = new Date();
+        const end = new Date(res.data.dueDate);
+        if (now > end) setIsTestEnded(true);
+      } catch (err) { console.error(err); }
+    };
+    checkDeadline();
+
     socket.emit('join_quiz', quizId);
 
     const handleUpdate = (data) => {
@@ -37,6 +55,11 @@ const LiveProctoring = () => {
           newStatus = 'Frozen';
         } else if (data.status === 'active') {
           newStatus = 'Active';
+        } else if (data.status === 'finished') {
+          // 🚀 REMOVE STUDENT ON FINISH
+          const next = { ...prev };
+          delete next[data.socketId];
+          return next;
         }
 
         const newImage = data.status === 'snapshot' ? data.image : (existing.image || null);
@@ -92,6 +115,11 @@ const LiveProctoring = () => {
           </div>
 
           <div className="flex items-center gap-8">
+            {isTestEnded && (
+              <div className="flex items-center gap-2 bg-rose-500/10 text-rose-500 px-4 py-2 rounded-xl border border-rose-500/20 font-bold">
+                <Lock size={16} /> TEST ENDED
+              </div>
+            )}
             <div className="flex gap-10">
               <div className="text-center">
                 <p className="text-2xl font-bold text-white leading-none">{activeCount}</p>
@@ -105,12 +133,35 @@ const LiveProctoring = () => {
                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Status</p>
               </div>
             </div>
-            <button className="btn-premium px-6 py-2.5 text-sm">
-              <Zap size={16} /> Broadcast Alert
-            </button>
           </div>
         </div>
       </header>
+
+      {/* --- TEST ENDED OVERLAY --- */}
+      {isTestEnded && (
+        <div className="fixed inset-0 z-[100] bg-[#020617]/95 backdrop-blur-xl flex items-center justify-center p-6">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="max-w-2xl w-full glass-panel p-16 rounded-[3rem] text-center border-rose-500/30"
+          >
+            <div className="w-24 h-24 bg-rose-500/20 rounded-full flex items-center justify-center mx-auto mb-8 text-rose-500 border border-rose-500/30">
+              <Lock size={48} />
+            </div>
+            <h1 className="text-5xl font-black mb-6 tracking-tight">TEST SESSION CONCLUDED</h1>
+            <p className="text-slate-400 text-xl leading-relaxed mb-10">
+              The deadline for this assessment has passed. Live monitoring is no longer available. 
+              Please proceed to the Gradebook to review student results.
+            </p>
+            <button 
+              onClick={() => navigate(-1)}
+              className="btn-premium from-slate-700 to-slate-900 w-full py-5 text-xl"
+            >
+              Back to Dashboard
+            </button>
+          </motion.div>
+        </div>
+      )}
 
       {/* --- GRID DISPLAY --- */}
       <main className="max-w-7xl mx-auto p-10">
