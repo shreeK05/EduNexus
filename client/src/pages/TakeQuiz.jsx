@@ -83,10 +83,10 @@ const TakeQuiz = () => {
     const runCoco = async () => {
       try {
         const net = await cocoSsd.load();
-        addLog("🛡️ AI Neural Engine Online");
+        addLog("🛡️ AI Proctoring Engine Online");
         const interval = setInterval(() => { detect(net); }, 2000);
         return () => clearInterval(interval);
-      } catch (e) { addLog("❌ AI Engine Error"); }
+      } catch (e) { addLog("❌ Proctoring Engine Error"); }
     };
 
     const detect = async (net) => {
@@ -163,7 +163,7 @@ const TakeQuiz = () => {
       <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
         <Cpu className="text-indigo-400" size={48} />
       </motion.div>
-      <p className="mt-4 text-indigo-300 font-bold tracking-widest animate-pulse">INITIALIZING SECURE SESSION...</p>
+      <p className="mt-4 text-indigo-300 font-bold tracking-widest animate-pulse">SETTING UP EXAM SESSION...</p>
     </div>
   );
 
@@ -174,10 +174,10 @@ const TakeQuiz = () => {
           <div className="w-24 h-24 bg-rose-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(244,63,94,0.5)]">
             <Lock size={48} />
           </div>
-          <h1 className="text-6xl font-black mb-6 tracking-tight">TERMINAL LOCKED</h1>
+          <h1 className="text-6xl font-black mb-6 tracking-tight">EXAM LOCKED</h1>
           <p className="text-2xl text-rose-300 max-w-xl mx-auto leading-relaxed">
-            Suspicious activity detected. Your assessment session has been administratively frozen. 
-            Please remain in view of the camera.
+            Unusual activity detected. Your quiz session has been frozen by the proctor. 
+            Please stay in your position and wait for instructions.
           </p>
         </motion.div>
       </div>
@@ -218,7 +218,7 @@ const TakeQuiz = () => {
           <video ref={videoRef} autoPlay muted className="hidden" />
 
           <button onClick={enterFullscreen} className="btn-premium w-full py-5 text-xl">
-            Start Neural Sync <ChevronRight size={24} />
+            Start Exam <ChevronRight size={24} />
           </button>
         </motion.div>
       </div>
@@ -235,9 +235,9 @@ const TakeQuiz = () => {
         <div className="p-6 border-b border-slate-800/50">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <Cpu size={20} />
+              <ShieldCheck size={20} />
             </div>
-            <span className="font-bold text-xl tracking-tight">QUIZ-OS <span className="text-indigo-500">v2.4</span></span>
+            <span className="font-bold text-xl tracking-tight">EXAM DASHBOARD</span>
           </div>
 
           <div className="space-y-6">
@@ -258,7 +258,7 @@ const TakeQuiz = () => {
         </div>
 
         <div className="p-6 flex-1 overflow-y-auto">
-          <label className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-4 block">Neural Activity Log</label>
+          <label className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-4 block">Proctoring Log</label>
           <div className="space-y-3">
             {detectionLogs.map((log, i) => (
               <motion.div 
@@ -278,7 +278,7 @@ const TakeQuiz = () => {
             <video ref={videoRef} autoPlay muted className="w-full h-full object-cover scale-x-[-1] opacity-80 group-hover:opacity-100 transition-opacity" />
             <div className="absolute inset-0 pointer-events-none border border-indigo-500/20 mix-blend-overlay"></div>
             <div className="absolute top-3 left-3 flex items-center gap-2 bg-indigo-600/80 backdrop-blur-md px-2 py-1 rounded text-[9px] font-black tracking-widest">
-              <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> EYE-SYNC
+              <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> PROCTOR FEED
             </div>
           </div>
         </div>
@@ -311,7 +311,7 @@ const TakeQuiz = () => {
               onClick={handleSubmit}
               className="btn-premium py-2 px-6 text-sm"
             >
-              Finalize Submission
+              Submit Quiz
             </button>
           </div>
         </header>
@@ -369,7 +369,7 @@ const TakeQuiz = () => {
                   onClick={() => setCurrentQuestion(prev => prev - 1)}
                   className="btn-secondary disabled:opacity-20"
                 >
-                  Previous Entry
+                  Previous Question
                 </button>
                 
                 <div className="flex gap-2">
@@ -386,7 +386,7 @@ const TakeQuiz = () => {
                   onClick={() => setCurrentQuestion(prev => prev + 1)}
                   className="btn-premium"
                 >
-                  Next entry <ChevronRight size={18} />
+                  Next Question <ChevronRight size={18} />
                 </button>
               </div>
             </motion.div>

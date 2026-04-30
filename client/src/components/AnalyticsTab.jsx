@@ -47,7 +47,7 @@ const AnalyticsTab = ({ classId }) => {
   if (!data) return (
     <div className="flex flex-col items-center justify-center p-20 glass-panel rounded-[3rem] border-slate-800/50">
       <ShieldCheck size={48} className="text-slate-700 mb-4" />
-      <p className="text-slate-500 font-black uppercase tracking-widest text-sm text-center">Neural Matrix Empty.<br/>No data streams detected.</p>
+      <p className="text-slate-500 font-black uppercase tracking-widest text-sm text-center">Analytics Data Empty.<br/>No activity detected.</p>
     </div>
   );
 
@@ -58,7 +58,7 @@ const AnalyticsTab = ({ classId }) => {
   const totalSubmissionsMissing = Math.max(0, totalExpectedSubmissions - totalSubmissionsDone);
 
   const submissionData = [
-    { name: 'Executed', value: totalSubmissionsDone, color: '#10b981' },
+    { name: 'Submitted', value: totalSubmissionsDone, color: '#10b981' },
     { name: 'Pending', value: totalSubmissionsMissing, color: '#f43f5e' }
   ];
 
@@ -82,7 +82,7 @@ const AnalyticsTab = ({ classId }) => {
 
   const performanceData = [
     { name: 'Submissions', score: assignmentAvg, fill: 'url(#gradientIndigo)' },
-    { name: 'Synapses', score: quizAvg, fill: 'url(#gradientAmber)' }
+    { name: 'Quizzes', score: quizAvg, fill: 'url(#gradientAmber)' }
   ];
 
   return (
@@ -99,7 +99,7 @@ const AnalyticsTab = ({ classId }) => {
           color="indigo"
         />
         <StatCard
-          label="Pending Syncs"
+          label="Pending Work"
           value={totalSubmissionsMissing}
           total={totalExpectedSubmissions}
           percent={Math.round((totalSubmissionsMissing / totalExpectedSubmissions) * 100)}
@@ -107,9 +107,9 @@ const AnalyticsTab = ({ classId }) => {
           color="rose"
         />
         <StatCard
-          label="Neural Accuracy"
+          label="Class Performance"
           value={`${classTestAvg}%`}
-          subtext="Collective Score"
+          subtext="Overall Score"
           icon={<Zap size={24} />}
           color="amber"
         />
@@ -239,8 +239,8 @@ const AnalyticsTab = ({ classId }) => {
                 <Brain size={20} />
               </div>
               <div>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Global Intelligence</p>
-                <p className="text-sm font-bold text-white mt-0.5">Average cohort accuracy is operating at {classTestAvg}% efficiency.</p>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Class Insights</p>
+                <p className="text-sm font-bold text-white mt-0.5">Average class performance is operating at {classTestAvg}% efficiency.</p>
               </div>
             </div>
           </div>
@@ -308,7 +308,7 @@ const CustomTooltip = ({ active, payload, label }) => {
           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: payload[0].color || payload[0].payload.fill }}></div>
           <p className="text-lg font-black text-white">
             {payload[0].value}
-            <span className="text-xs text-slate-500 ml-1">{payload[0].name === 'Executed' || payload[0].name === 'Pending' ? 'Nodes' : '%'}</span>
+            <span className="text-xs text-slate-500 ml-1">{payload[0].name === 'Submitted' || payload[0].name === 'Pending' ? 'Submissions' : '%'}</span>
           </p>
         </div>
       </div>

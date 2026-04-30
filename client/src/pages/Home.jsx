@@ -126,20 +126,20 @@ const Home = () => {
             {[
               { 
                 icon: <ShieldCheck size={32} />, 
-                title: "AI-Gen Sentinel", 
-                desc: "Real-time cheating detection using advanced facial analysis and behavior tracking.",
+                title: "AI Proctoring", 
+                desc: "Real-time automated proctoring using advanced facial analysis and behavior tracking.",
                 color: "text-indigo-400"
               },
               { 
                 icon: <Video size={32} />, 
-                title: "Holographic Rooms", 
-                desc: "Zero-latency video communication for immersive classroom experiences.",
+                title: "Live Classes", 
+                desc: "Low-latency video communication for seamless virtual classroom experiences.",
                 color: "text-pink-400"
               },
               { 
                 icon: <BarChart2 size={32} />, 
-                title: "Neural Analytics", 
-                desc: "Predictive performance modeling to help students excel in their learning journey.",
+                title: "Smart Analytics", 
+                desc: "Comprehensive performance tracking to help students excel in their learning journey.",
                 color: "text-purple-400"
               }
             ].map((feature, i) => (

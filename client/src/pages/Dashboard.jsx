@@ -152,7 +152,7 @@ const Dashboard = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                 <input 
                   type="text" 
-                  placeholder="Search Neural Network..." 
+                  placeholder="Search Classrooms..." 
                   className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 outline-none transition-all text-sm"
                 />
               </div>
@@ -160,7 +160,7 @@ const Dashboard = () => {
                 onClick={() => setShowModal(true)}
                 className="btn-premium px-6 py-3 text-sm whitespace-nowrap shadow-indigo-500/20"
               >
-                <Plus size={18} /> {isTeacher ? 'Deploy Class' : 'Link Class'}
+                <Plus size={18} /> {isTeacher ? 'Create Class' : 'Join Class'}
               </button>
             </div>
           </header>
@@ -168,8 +168,8 @@ const Dashboard = () => {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <StatCard label={isTeacher ? "Total Classes" : "Enrolled"} value={stats.totalClasses} icon={<BookOpen />} color="indigo" />
-            <StatCard label="Total Nodes" value={stats.totalStudents} icon={<Users />} color="purple" />
-            <StatCard label="Network Load" value={`${stats.avgClassSize}%`} icon={<BarChart2 />} color="emerald" />
+            <StatCard label="Total Students" value={stats.totalStudents} icon={<Users />} color="purple" />
+            <StatCard label="Avg Class Size" value={stats.avgClassSize} icon={<BarChart2 />} color="emerald" />
           </div>
 
           {/* Main Display Area */}
@@ -180,10 +180,10 @@ const Dashboard = () => {
                   <div className="p-2 bg-indigo-500/10 rounded-lg">
                     <GraduationCap size={20} className="text-indigo-400" />
                   </div>
-                  <h3 className="font-bold text-white text-lg tracking-tight">Active Learning Modules</h3>
+                  <h3 className="font-bold text-white text-lg tracking-tight">Active Classrooms</h3>
                 </div>
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700/50">
-                  {classes.length} SYNCED
+                  {classes.length} ACTIVE
                 </span>
               </div>
 
@@ -193,8 +193,8 @@ const Dashboard = () => {
                     <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-800 animate-pulse">
                       <Sparkles size={32} className="text-slate-700" />
                     </div>
-                    <h4 className="text-xl font-bold text-white mb-2">No Active Links Detected</h4>
-                    <p className="text-slate-500 mb-8 max-w-sm mx-auto">Initialize your first learning module to begin data synchronization.</p>
+                    <h4 className="text-xl font-bold text-white mb-2">No Classrooms Found</h4>
+                    <p className="text-slate-500 mb-8 max-w-sm mx-auto">Create or join your first class to get started.</p>
                     <button onClick={() => setShowModal(true)} className="btn-secondary px-8 py-3 rounded-2xl">
                       Get Started
                     </button>
@@ -227,7 +227,7 @@ const Dashboard = () => {
                         <div className="flex items-center justify-between pt-6 border-t border-slate-800/50">
                           <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                             <Users size={14} className="text-indigo-500" />
-                            {cls.students?.length || 0} Nodes
+                            {cls.students?.length || 0} Students
                           </div>
                           <div className="p-2 bg-slate-800/50 rounded-xl group-hover:bg-indigo-500 group-hover:text-white transition-all">
                             <ChevronRight size={18} />
@@ -244,7 +244,7 @@ const Dashboard = () => {
           {activeTab === 'people' && (
             <section className="glass-panel rounded-[2.5rem] border-slate-800/50 overflow-hidden">
               <div className="px-8 py-6 border-b border-slate-800/50 bg-slate-900/30">
-                <h3 className="font-bold text-white text-lg tracking-tight">Connected Entities</h3>
+                <h3 className="font-bold text-white text-lg tracking-tight">Connected People</h3>
               </div>
               <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -260,7 +260,7 @@ const Dashboard = () => {
                     </div>
                   ))}
                   {classes.length === 0 && (
-                    <p className="col-span-full text-center py-20 text-slate-500 font-bold uppercase tracking-widest text-xs">No entities detected in the network.</p>
+                    <p className="col-span-full text-center py-20 text-slate-500 font-bold uppercase tracking-widest text-xs">No students found.</p>
                   )}
                 </div>
               </div>
@@ -274,7 +274,7 @@ const Dashboard = () => {
               ) : (
                 <div className="text-center py-32 glass-panel rounded-[3rem] border-slate-800/50">
                   <BarChart2 size={48} className="mx-auto mb-6 text-slate-800" />
-                  <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Intelligence data requires an active module.</p>
+                  <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Analytics data requires an active classroom.</p>
                 </div>
               )}
             </div>
@@ -283,11 +283,11 @@ const Dashboard = () => {
           {activeTab === 'notifications' && (
             <section className="glass-panel rounded-[2.5rem] border-slate-800/50 overflow-hidden">
               <div className="px-8 py-6 border-b border-slate-800/50 bg-slate-900/30">
-                <h3 className="font-bold text-white text-lg tracking-tight">Network Feed</h3>
+                <h3 className="font-bold text-white text-lg tracking-tight">Recent Activity</h3>
               </div>
               <div className="p-12 text-center">
                 <Bell size={48} className="mx-auto mb-6 text-slate-800" />
-                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No priority transmissions detected.</p>
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No new notifications.</p>
               </div>
             </section>
           )}
@@ -310,30 +310,30 @@ const Dashboard = () => {
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="bg-slate-900 border border-slate-800 p-10 rounded-[3rem] shadow-2xl w-full max-w-lg relative z-10"
             >
-              <h2 className="text-3xl font-black text-white mb-2">{isTeacher ? 'Create Module' : 'Link Module'}</h2>
-              <p className="text-slate-500 mb-8 font-medium">Initialize a new learning cluster in the network.</p>
+              <h2 className="text-3xl font-black text-white mb-2">{isTeacher ? 'Create Class' : 'Join Class'}</h2>
+              <p className="text-slate-500 mb-8 font-medium">{isTeacher ? 'Set up a new virtual classroom for your students.' : 'Enter the code provided by your teacher.'}</p>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {isTeacher ? (
                   <>
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Module Name</label>
-                      <input className="input-premium" placeholder="e.g. Advanced Quantum Computing" onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Class Name</label>
+                      <input className="input-premium" placeholder="e.g. Data Structures" onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
                     </div>
                     <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Domain</label>
-                        <input className="input-premium" placeholder="Science" onChange={(e) => setFormData({ ...formData, subject: e.target.value })} required />
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Subject</label>
+                        <input className="input-premium" placeholder="e.g. CS-101" onChange={(e) => setFormData({ ...formData, subject: e.target.value })} required />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Cluster ID</label>
-                        <input className="input-premium" placeholder="Batch-X" onChange={(e) => setFormData({ ...formData, section: e.target.value })} required />
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Section</label>
+                        <input className="input-premium" placeholder="e.g. A" onChange={(e) => setFormData({ ...formData, section: e.target.value })} required />
                       </div>
                     </div>
                   </>
                 ) : (
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Neural Access Code</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Class Code</label>
                     <input
                       placeholder="XXXXXX"
                       className="input-premium text-center font-mono text-2xl tracking-[0.5em] uppercase"
@@ -344,7 +344,7 @@ const Dashboard = () => {
                   </div>
                 )}
                 <button type="submit" className="btn-premium w-full py-5 text-lg shadow-indigo-500/20 mt-4">
-                  Confirm Initialization
+                  {isTeacher ? 'CREATE CLASS' : 'JOIN CLASS'}
                 </button>
               </form>
             </motion.div>

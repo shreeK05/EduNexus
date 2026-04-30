@@ -89,7 +89,7 @@ const VideoCall = () => {
 
             <div className="mt-12 text-center space-y-4">
               <h2 className="text-2xl font-black text-white uppercase tracking-[0.2em] flex items-center gap-4 justify-center">
-                Neural <span className="text-indigo-500">Sync</span>
+                Live <span className="text-indigo-500">Class</span>
               </h2>
               <div className="flex items-center gap-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">
                 <span className="flex items-center gap-2"><ShieldCheck size={14} className="text-emerald-500" /> Secure Link</span>
@@ -101,7 +101,7 @@ const VideoCall = () => {
             </div>
 
             <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
-              <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.5em] animate-pulse">Initializing Virtual Classroom Environment</p>
+              <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.5em] animate-pulse">Connecting to Live Classroom Environment</p>
             </div>
           </motion.div>
         )}

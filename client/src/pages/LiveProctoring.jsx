@@ -82,9 +82,9 @@ const LiveProctoring = () => {
             <div>
               <div className="flex items-center gap-2">
                 <ShieldCheck size={18} className="text-indigo-400" />
-                <h1 className="text-xl font-bold tracking-tight">Sentinel Pro <span className="text-indigo-500 text-sm font-mono ml-2">v4.0_LIVE</span></h1>
+                <h1 className="text-xl font-bold tracking-tight">Live Proctoring <span className="text-indigo-500 text-sm font-mono ml-2">v4.0_LIVE</span></h1>
               </div>
-              <p className="text-[10px] text-slate-500 font-mono tracking-widest mt-0.5 uppercase">Neural Link: {quizId}</p>
+              <p className="text-[10px] text-slate-500 font-mono tracking-widest mt-0.5 uppercase">Quiz ID: {quizId}</p>
             </div>
           </div>
 
@@ -97,9 +97,9 @@ const LiveProctoring = () => {
               <div className="text-center">
                 <div className="flex items-center gap-2 text-emerald-400 leading-none">
                   <Activity size={18} className="animate-pulse" />
-                  <span className="text-2xl font-bold">STABLE</span>
+                  <span className="text-2xl font-bold">CONNECTED</span>
                 </div>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Link Status</p>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Status</p>
               </div>
             </div>
             <button className="btn-premium px-6 py-2.5 text-sm">
@@ -121,8 +121,8 @@ const LiveProctoring = () => {
               <div className="w-24 h-24 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 animate-pulse">
                 <Users size={40} />
               </div>
-              <h2 className="text-2xl font-bold mb-2">Awaiting Neural Uplink</h2>
-              <p className="text-slate-500 font-medium">Students will appear here as they connect to the assessment server.</p>
+              <h2 className="text-2xl font-bold mb-2">Awaiting Student Connections</h2>
+              <p className="text-slate-500 font-medium">Students will appear here as they connect to the quiz.</p>
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -175,7 +175,7 @@ const LiveProctoring = () => {
                         {student.logs.length === 0 ? (
                           <div className="h-full flex flex-col items-center justify-center opacity-20">
                             <Activity size={24} />
-                            <span className="text-[10px] font-bold tracking-widest mt-2 uppercase">Nominal Output</span>
+                            <span className="text-[10px] font-bold tracking-widest mt-2 uppercase">No Alerts Detected</span>
                           </div>
                         ) : (
                           student.logs.map((log, i) => (
@@ -206,14 +206,14 @@ const LiveProctoring = () => {
                             onClick={() => sendAction(socketId, 'unfreeze')}
                             className="flex-[1.5] btn-premium from-emerald-600 to-teal-600 py-3 text-[11px] uppercase tracking-wider font-black shadow-emerald-500/20"
                           >
-                            <Unlock size={14} /> Resume Session
+                            <Unlock size={14} /> Resume Quiz
                           </button>
                         ) : (
                           <button
                             onClick={() => sendAction(socketId, 'freeze')}
                             className="flex-[1.5] btn-premium from-rose-600 to-pink-700 py-3 text-[11px] uppercase tracking-wider font-black shadow-rose-500/20"
                           >
-                            <Lock size={14} /> Freeze Terminal
+                            <Lock size={14} /> Freeze Quiz
                           </button>
                         )}
                       </div>

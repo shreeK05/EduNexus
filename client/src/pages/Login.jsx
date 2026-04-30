@@ -46,7 +46,7 @@ const Login = () => {
         onClick={() => navigate('/')} 
         className="fixed top-10 left-10 nav-link text-white flex items-center gap-2 font-bold"
       >
-        <ArrowLeft size={20} /> Back to Orbit
+        <ArrowLeft size={20} /> Back to Home
       </motion.button>
 
       <motion.div 
@@ -71,7 +71,7 @@ const Login = () => {
           </div>
 
           <div className="relative z-10 flex items-center gap-3 text-xs font-bold tracking-widest uppercase opacity-50">
-            <Sparkles size={14} /> Neural-Link v4.0
+            <Sparkles size={14} /> EduNexus v4.0
           </div>
         </div>
 
@@ -98,7 +98,7 @@ const Login = () => {
 
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Secure Email</label>
+                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Email Address</label>
                 <input
                   type="email"
                   required
@@ -110,7 +110,7 @@ const Login = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Access Cipher</label>
+                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Password</label>
                 <input
                   type="password"
                   required
@@ -129,7 +129,7 @@ const Login = () => {
                 {loading ? (
                   <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
-                  <span className="flex items-center gap-2">Initiate Sync <Sparkles size={18} /></span>
+                  <span className="flex items-center gap-2">Log In <Sparkles size={18} /></span>
                 )}
               </button>
             </form>

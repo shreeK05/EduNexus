@@ -89,7 +89,7 @@ const CreateQuiz = () => {
             </button>
             <div className="h-8 w-px bg-slate-800"></div>
             <h1 className="text-xl font-black text-white flex items-center gap-3">
-              Synaptic Architect <span className="text-indigo-500">.</span>
+              Quiz Creator <span className="text-indigo-500">.</span>
             </h1>
           </div>
 
@@ -98,14 +98,14 @@ const CreateQuiz = () => {
               onClick={addQuestion} 
               className="btn-secondary px-6 py-2.5 text-xs font-black uppercase tracking-widest"
             >
-              <Plus size={16} /> New Node
+              <Plus size={16} /> Add Question
             </button>
             <button 
               onClick={handleSubmit} 
               disabled={loading} 
               className="btn-premium px-8 py-2.5 text-sm shadow-indigo-500/20"
             >
-              {loading ? 'Initializing...' : <><Save size={18} /> Deploy Module</>}
+              {loading ? 'Saving...' : <><Save size={18} /> Save Quiz</>}
             </button>
           </div>
         </div>
@@ -125,17 +125,17 @@ const CreateQuiz = () => {
           >
             <div className="flex items-center gap-4 mb-8">
               <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
-                <Terminal size={20} />
+                <ShieldCheck size={20} />
               </div>
-              <h2 className="text-xl font-black text-white uppercase tracking-tight">Configuration Payload</h2>
+              <h2 className="text-xl font-black text-white uppercase tracking-tight">Quiz Details</h2>
             </div>
 
             <div className="space-y-8">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Module Title</label>
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Quiz Title</label>
                 <input
                   className="input-premium text-2xl font-black tracking-tight py-6"
-                  placeholder="e.g. Advanced Quantum Neural Networks"
+                  placeholder="e.g. Midterm Examination"
                   value={title} onChange={e => setTitle(e.target.value)}
                   autoFocus
                 />
@@ -144,13 +144,13 @@ const CreateQuiz = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1 flex items-center gap-2">
-                    <Calendar size={14} className="text-indigo-400" /> Synchronization Start
+                    <Calendar size={14} className="text-indigo-400" /> Start Date & Time
                   </label>
                   <input type="datetime-local" className="input-premium" value={startDate} onChange={e => setStartDate(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1 flex items-center gap-2">
-                    <Clock size={14} className="text-rose-400" /> Connection Timeout
+                    <Clock size={14} className="text-rose-400" /> Due Date & Time
                   </label>
                   <input type="datetime-local" className="input-premium" value={dueDate} onChange={e => setDueDate(e.target.value)} />
                 </div>
@@ -179,8 +179,8 @@ const CreateQuiz = () => {
                         className="bg-slate-900 border border-slate-800 text-slate-300 text-[10px] font-black uppercase tracking-widest rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer"
                         value={q.type} onChange={e => handleUpdateQuestion(qIndex, 'type', e.target.value)}
                       >
-                        <option value="single">Single Logic Stream</option>
-                        <option value="multi">Parallel Logic Streams</option>
+                        <option value="single">Single Choice</option>
+                        <option value="multi">Multiple Choice</option>
                       </select>
                     </div>
 
@@ -195,10 +195,10 @@ const CreateQuiz = () => {
                   </div>
 
                   <div className="mb-10">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1 mb-2 block">Question Invariant</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1 mb-2 block">Question Text</label>
                     <textarea
                       className="w-full text-2xl font-black bg-transparent outline-none border-b-2 border-slate-800 focus:border-indigo-500 transition-all placeholder:text-slate-800 py-4 resize-none leading-tight"
-                      placeholder="Input neural query..."
+                      placeholder="Enter your question here..."
                       rows={1}
                       value={q.question} onChange={e => handleUpdateQuestion(qIndex, 'question', e.target.value)}
                     />
@@ -226,7 +226,7 @@ const CreateQuiz = () => {
                           </div>
                           <input
                             className="flex-1 bg-transparent outline-none font-black text-lg text-white placeholder:text-slate-700"
-                            placeholder={`Node Data ${oIndex + 1}`}
+                            placeholder={`Option ${oIndex + 1}`}
                             value={opt} onChange={e => handleUpdateOption(qIndex, oIndex, e.target.value)}
                             onClick={e => e.stopPropagation()}
                           />
@@ -248,7 +248,7 @@ const CreateQuiz = () => {
               onClick={addQuestion} 
               className="flex items-center gap-4 px-12 py-6 bg-slate-900/50 border-2 border-dashed border-slate-800 text-slate-500 font-black uppercase tracking-widest rounded-[2rem] hover:border-indigo-500 hover:text-indigo-400 hover:bg-indigo-500/5 transition-all w-full justify-center group"
             >
-              <Plus size={24} className="group-hover:rotate-90 transition-transform duration-500" /> Initialize New Synaptic Node
+              <Plus size={24} className="group-hover:rotate-90 transition-transform duration-500" /> Add Another Question
             </button>
           </motion.div>
         </div>

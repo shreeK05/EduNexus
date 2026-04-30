@@ -37,7 +37,7 @@ const Register = () => {
         onClick={() => navigate('/')} 
         className="fixed top-10 left-10 nav-link text-white flex items-center gap-2 font-bold"
       >
-        <ArrowLeft size={20} /> Abort Mission
+        <ArrowLeft size={20} /> Back to Home
       </motion.button>
 
       <motion.div 
@@ -51,14 +51,14 @@ const Register = () => {
           
           <div className="relative z-10">
             <h1 className="text-5xl font-black mb-6 tracking-tight leading-tight">Join the <br />Nexus.</h1>
-            <p className="text-indigo-100/70 text-lg font-medium">Create your neural profile and start your journey with AI precision.</p>
+            <p className="text-indigo-100/70 text-lg font-medium">Create your account and start your journey with AI-powered analytics.</p>
           </div>
 
           <div className="relative z-10 space-y-6">
             {[
               { icon: <ShieldCheck className="text-emerald-400" />, text: "Free for students forever" },
-              { icon: <Sparkles className="text-amber-400" />, text: "AI Proctoring Sentinel" },
-              { icon: <User className="text-indigo-300" />, text: "Verified Teacher Console" }
+              { icon: <Sparkles className="text-amber-400" />, text: "AI-Powered Proctoring" },
+              { icon: <User className="text-indigo-300" />, text: "Professional Teacher Console" }
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-4 text-sm font-bold tracking-wide">
                 <div className="p-2 bg-white/10 rounded-lg border border-white/10">{item.icon}</div>
@@ -77,7 +77,7 @@ const Register = () => {
             className="max-w-md mx-auto"
           >
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-white mb-3">Initialize Profile</h2>
+              <h2 className="text-3xl font-bold text-white mb-3">Create Profile</h2>
               <p className="text-slate-400 font-medium">Step into the future of learning.</p>
             </div>
 
@@ -97,7 +97,7 @@ const Register = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Entity Role</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Account Role</label>
                   <select
                     className="input-premium appearance-none"
                     value={role} onChange={(e) => setRole(e.target.value)}
@@ -109,7 +109,7 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Email Terminal</label>
+                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Email Address</label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
                   <input
@@ -122,7 +122,7 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Access Cipher</label>
+                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Password</label>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
                   <input
@@ -139,8 +139,8 @@ const Register = () => {
                 disabled={loading}
                 className="btn-premium w-full py-5 text-xl mt-4 shadow-indigo-500/20"
               >
-                {loading ? 'SYNCING DATA...' : (
-                  <span className="flex items-center gap-2">Establish Link <ChevronRight size={20} /></span>
+                {loading ? 'CREATING ACCOUNT...' : (
+                  <span className="flex items-center gap-2">Sign Up <ChevronRight size={20} /></span>
                 )}
               </button>
             </form>
