@@ -3,8 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import io from 'socket.io-client';
-import { Settings, Lock, AlertTriangle, Eye, ShieldCheck, Maximize2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Settings, Lock, AlertTriangle, Eye, ShieldCheck, 
+  Maximize2, Timer, CheckCircle2, ChevronRight, 
+  Info, Cpu, Activity 
+} from 'lucide-react';
 
+const API_URL = "http://localhost:10000"; // Local fallback
 const socket = io.connect("https://edunexus-api-w6xc.onrender.com");
 
 const TakeQuiz = () => {
@@ -18,6 +24,9 @@ const TakeQuiz = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isFrozen, setIsFrozen] = useState(false);
   const [warnings, setWarnings] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [detectionLogs, setDetectionLogs] = useState([]);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('userInfo'));
@@ -30,14 +39,12 @@ const TakeQuiz = () => {
 
     socket.on('student_action', (action) => {
       if (action === 'warn') {
-        alert("⚠️ TEACHER WARNING: Stop suspicious activity immediately!");
+        addLog("⚠️ TEACHER WARNING ISSUED");
       } else if (action === 'freeze') {
         setIsFrozen(true);
         socket.emit('report_status', { quizId, studentName: storedUser?.name, status: 'frozen', socketId: socket.id });
-        alert("❄️ TEST FROZEN: The teacher has paused your test due to suspicious activity.");
       } else if (action === 'unfreeze') {
         setIsFrozen(false);
-        alert("✅ TEST UNFROZEN: You may continue.");
       }
     });
 
@@ -45,21 +52,41 @@ const TakeQuiz = () => {
       try {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         const token = userInfo ? userInfo.token : null;
-        const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/quizzes/single/${quizId}`, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await axios.get(`https://edunexus-api-w6xc.onrender.com/api/quizzes/single/${quizId}`, { 
+          headers: { Authorization: `Bearer ${token}` } 
+        });
 
         if (new Date() > new Date(res.data.dueDate)) {
-          alert("⛔ This quiz has expired and is no longer accepting submissions.");
-          navigate(-1);
+          navigate('/dashboard');
           return;
         }
         setQuiz(res.data);
-      } catch (err) { alert("Error loading quiz"); }
+        
+        // Setup timer
+        const end = new Date(res.data.dueDate).getTime();
+        const interval = setInterval(() => {
+          const now = new Date().getTime();
+          const dist = end - now;
+          if (dist < 0) {
+            clearInterval(interval);
+            handleSubmit();
+          } else {
+            setTimeLeft(dist);
+          }
+        }, 1000);
+
+        return () => clearInterval(interval);
+      } catch (err) { console.error(err); }
     };
     fetchQuiz();
 
     const runCoco = async () => {
-      const net = await cocoSsd.load();
-      setInterval(() => { detect(net); }, 2000);
+      try {
+        const net = await cocoSsd.load();
+        addLog("🛡️ AI Neural Engine Online");
+        const interval = setInterval(() => { detect(net); }, 2000);
+        return () => clearInterval(interval);
+      } catch (e) { addLog("❌ AI Engine Error"); }
     };
 
     const detect = async (net) => {
@@ -67,18 +94,26 @@ const TakeQuiz = () => {
         const obj = await net.detect(videoRef.current);
         const forbidden = ['cell phone', 'mobile phone', 'book'];
         obj.forEach(prediction => {
-          if (forbidden.includes(prediction.class)) triggerWarning(`Detected: ${prediction.class}`);
+          if (forbidden.includes(prediction.class)) {
+            triggerWarning(`Detected: ${prediction.class}`);
+            addLog(`🚩 Security Breach: ${prediction.class}`);
+          }
         });
       }
     };
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true }).then(stream => { if (videoRef.current) videoRef.current.srcObject = stream; });
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { if (videoRef.current) videoRef.current.srcObject = stream; });
     }
     runCoco();
 
     return () => { socket.off('student_action'); };
   }, [quizId, isFrozen]);
+
+  const addLog = (msg) => {
+    setDetectionLogs(prev => [msg, ...prev].slice(0, 5));
+  };
 
   const triggerWarning = (reason) => {
     socket.emit('report_status', { quizId, studentName: user?.name, status: 'cheating', reason: reason, socketId: socket.id });
@@ -87,7 +122,9 @@ const TakeQuiz = () => {
 
   const enterFullscreen = () => {
     const elem = document.documentElement;
-    if (elem.requestFullscreen) elem.requestFullscreen().then(() => setIsFullscreen(true));
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen().then(() => setIsFullscreen(true));
+    }
   };
 
   const handleSelect = (qIndex, oIndex, type) => {
@@ -100,121 +137,272 @@ const TakeQuiz = () => {
     }
   };
 
+  const formatTime = (ms) => {
+    if (!ms) return "00:00:00";
+    const h = Math.floor(ms / (1000 * 60 * 60));
+    const m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((ms % (1000 * 60)) / 1000);
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   const handleSubmit = async () => {
-    if (isFrozen) return alert("Your test is frozen. Ask teacher to unfreeze.");
+    if (isFrozen) return;
     if (document.fullscreenElement) document.exitFullscreen();
     try {
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
       const token = userInfo ? userInfo.token : null;
-      const res = await axios.post('https://edunexus-api-w6xc.onrender.com/api/quizzes/submit', { quizId, studentId: user._id, answers }, { headers: { Authorization: `Bearer ${token}` } });
-      alert(`Score: ${res.data.score}/${res.data.total}`);
-      navigate(-1);
-    } catch (err) { alert('Error submitting'); }
+      await axios.post('https://edunexus-api-w6xc.onrender.com/api/quizzes/submit', { 
+        quizId, studentId: user._id, answers 
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      navigate('/dashboard');
+    } catch (err) { console.error(err); }
   };
 
-  if (!quiz) return <div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>;
+  if (!quiz) return (
+    <div className="min-h-screen mesh-gradient flex flex-col items-center justify-center">
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
+        <Cpu className="text-indigo-400" size={48} />
+      </motion.div>
+      <p className="mt-4 text-indigo-300 font-bold tracking-widest animate-pulse">INITIALIZING SECURE SESSION...</p>
+    </div>
+  );
 
   if (isFrozen) {
     return (
-      <div className="min-h-screen bg-rose-900 flex items-center justify-center text-white text-center p-10 animate-pulse">
-        <div>
-          <Lock size={64} className="mx-auto mb-4 text-rose-300" />
-          <h1 className="text-5xl font-bold mb-4">TEST FROZEN</h1>
-          <p className="text-xl opacity-90">Suspicious activity detected. Your test is locked.</p>
-          <p className="mt-4 font-bold text-yellow-400 bg-black/30 inline-block px-4 py-2 rounded">Please wait for the proctor to resume your session.</p>
-        </div>
+      <div className="min-h-screen bg-rose-950 flex items-center justify-center text-white text-center p-10">
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+          <div className="w-24 h-24 bg-rose-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(244,63,94,0.5)]">
+            <Lock size={48} />
+          </div>
+          <h1 className="text-6xl font-black mb-6 tracking-tight">TERMINAL LOCKED</h1>
+          <p className="text-2xl text-rose-300 max-w-xl mx-auto leading-relaxed">
+            Suspicious activity detected. Your assessment session has been administratively frozen. 
+            Please remain in view of the camera.
+          </p>
+        </motion.div>
       </div>
     );
   }
 
   if (!isFullscreen) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white p-4">
-        <div className="max-w-md w-full text-center p-10 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700">
-          <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-400">
-            <ShieldCheck size={32} />
+      <div className="min-h-screen mesh-gradient flex items-center justify-center p-6">
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="max-w-xl w-full glass-panel p-12 rounded-[2rem] text-center"
+        >
+          <div className="w-20 h-20 bg-indigo-500/20 rounded-2xl flex items-center justify-center mx-auto mb-8 text-indigo-400 border border-indigo-500/30">
+            <ShieldCheck size={40} />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Secure Test Environment</h1>
-          <p className="text-slate-400 mb-8">This quiz requires full-screen mode and webcam access for AI proctoring.</p>
+          <h1 className="text-4xl font-bold mb-4">Secure Exam Console</h1>
+          <p className="text-slate-400 text-lg mb-10">
+            This assessment utilizes AI-driven proctoring. You must enter full-screen mode 
+            and enable your camera to proceed.
+          </p>
+
+          <div className="space-y-4 mb-10 text-left">
+            {[
+              "Tab switching is strictly monitored",
+              "External materials are prohibited",
+              "AI will detect phones and books",
+              "Continuous camera feed is required"
+            ].map(rule => (
+              <div key={rule} className="flex items-center gap-3 text-slate-300 font-medium">
+                <CheckCircle2 size={18} className="text-indigo-500" />
+                {rule}
+              </div>
+            ))}
+          </div>
 
           <video ref={videoRef} autoPlay muted className="hidden" />
 
-          <button onClick={enterFullscreen} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-indigo-900/50 transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
-            Start Assessment <Maximize2 size={20} />
+          <button onClick={enterFullscreen} className="btn-premium w-full py-5 text-xl">
+            Start Neural Sync <ChevronRight size={24} />
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
+  const progress = (Object.keys(answers).length / quiz.questions.length) * 100;
+
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 select-none relative font-sans">
-
-      {/* Webcam Feed */}
-      <div className="fixed bottom-6 right-6 w-48 h-36 bg-black rounded-xl overflow-hidden shadow-2xl border-4 border-indigo-600 z-50">
-        <video ref={videoRef} autoPlay muted className="w-full h-full object-cover transform scale-x-[-1]" />
-        <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded text-[10px] uppercase font-bold text-red-500">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div> REC
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto">
-        <header className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8 flex justify-between items-center sticky top-4 z-40">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">{quiz.title}</h1>
-            <p className="text-slate-500 text-sm mt-1">{quiz.questions.length} Questions • AI Proctoring Active</p>
-          </div>
-          {warnings > 0 && (
-            <div className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 border border-red-100">
-              <AlertTriangle size={18} /> {warnings} Warnings
+    <div className="min-h-screen bg-[#020617] text-slate-100 flex overflow-hidden font-sans">
+      
+      {/* --- SIDEBAR MISSION CONTROL --- */}
+      <aside className="w-80 border-r border-slate-800/50 flex flex-col glass-panel">
+        <div className="p-6 border-b border-slate-800/50">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <Cpu size={20} />
             </div>
-          )}
+            <span className="font-bold text-xl tracking-tight">QUIZ-OS <span className="text-indigo-500">v2.4</span></span>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <label className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-2 block">Time Remaining</label>
+              <div className="text-3xl font-mono font-bold text-indigo-400 flex items-center gap-2">
+                <Timer size={24} /> {formatTime(timeLeft)}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-2 block">System Status</label>
+              <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                <Activity size={18} className="animate-pulse" /> SECURE / ENCRYPTED
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 flex-1 overflow-y-auto">
+          <label className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-4 block">Neural Activity Log</label>
+          <div className="space-y-3">
+            {detectionLogs.map((log, i) => (
+              <motion.div 
+                initial={{ x: -10, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                key={i} 
+                className="text-[11px] font-mono p-2 rounded bg-slate-900 border border-slate-800 text-slate-400"
+              >
+                [{new Date().toLocaleTimeString()}] {log}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-6 border-t border-slate-800/50">
+          <div className="relative w-full h-44 bg-black rounded-2xl overflow-hidden border-2 border-indigo-500/30 group">
+            <video ref={videoRef} autoPlay muted className="w-full h-full object-cover scale-x-[-1] opacity-80 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 pointer-events-none border border-indigo-500/20 mix-blend-overlay"></div>
+            <div className="absolute top-3 left-3 flex items-center gap-2 bg-indigo-600/80 backdrop-blur-md px-2 py-1 rounded text-[9px] font-black tracking-widest">
+              <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> EYE-SYNC
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* --- MAIN ASSESSMENT AREA --- */}
+      <main className="flex-1 flex flex-col relative">
+        
+        {/* Header Progress */}
+        <header className="h-20 border-b border-slate-800/50 flex items-center px-10 justify-between bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
+          <div className="flex items-center gap-6 flex-1">
+            <h1 className="font-bold text-xl truncate max-w-md">{quiz.title}</h1>
+            <div className="flex-1 max-w-xs h-1.5 bg-slate-800 rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
+              />
+            </div>
+            <span className="text-xs font-bold text-slate-500">{Math.round(progress)}% COMPLETE</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {warnings > 0 && (
+              <div className="flex items-center gap-2 text-rose-400 bg-rose-400/10 px-4 py-2 rounded-xl border border-rose-400/20 font-bold animate-bounce">
+                <AlertTriangle size={18} /> {warnings} VIOLATIONS
+              </div>
+            )}
+            <button 
+              onClick={handleSubmit}
+              className="btn-premium py-2 px-6 text-sm"
+            >
+              Finalize Submission
+            </button>
+          </div>
         </header>
 
-        <div className="space-y-8 mb-20">
-          {quiz.questions.map((q, qIndex) => (
-            <div key={qIndex} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-indigo-100 transition">
-              <div className="flex gap-4 mb-6">
-                <span className="bg-indigo-100 text-indigo-700 font-bold w-10 h-10 flex items-center justify-center rounded-lg shrink-0 text-lg">{qIndex + 1}</span>
-                <h3 className="font-bold text-xl text-slate-800 leading-relaxed">{q.question}</h3>
+        {/* Question Area */}
+        <div className="flex-1 overflow-y-auto p-12 flex flex-col items-center">
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={currentQuestion}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              className="max-w-3xl w-full space-y-10"
+            >
+              <div className="flex items-center gap-4">
+                <span className="text-5xl font-black text-slate-800">Q{currentQuestion + 1}</span>
+                <div className="h-px flex-1 bg-slate-800/50"></div>
               </div>
 
-              <div className="grid grid-cols-1 gap-3 pl-14">
-                {q.options.map((option, oIndex) => {
-                  const isSelected = (answers[qIndex] || []).includes(oIndex);
+              <h2 className="text-3xl font-medium text-slate-100 leading-tight">
+                {quiz.questions[currentQuestion].question}
+              </h2>
+
+              <div className="grid gap-4">
+                {quiz.questions[currentQuestion].options.map((option, i) => {
+                  const isSelected = (answers[currentQuestion] || []).includes(i);
                   return (
-                    <div
-                      key={oIndex}
-                      onClick={() => handleSelect(qIndex, oIndex, q.type)}
+                    <button
+                      key={i}
+                      onClick={() => handleSelect(currentQuestion, i, quiz.questions[currentQuestion].type)}
                       className={`
-                           p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-4
-                           ${isSelected ? 'bg-indigo-50 border-indigo-600 shadow-sm' : 'bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-300'}
-                        `}
+                        group flex items-center gap-6 p-6 rounded-2xl border-2 text-left transition-all duration-300
+                        ${isSelected 
+                          ? 'bg-indigo-600/10 border-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.15)]' 
+                          : 'bg-slate-900 border-slate-800 hover:border-slate-700 hover:bg-slate-800/50'}
+                      `}
                     >
                       <div className={`
-                            w-6 h-6 border-2 flex items-center justify-center transition
-                            ${q.type === 'single' ? 'rounded-full' : 'rounded-md'}
-                            ${isSelected ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300'}
-                        `}>
-                        {isSelected && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
+                        w-8 h-8 rounded-xl border-2 flex items-center justify-center shrink-0 transition-colors
+                        ${isSelected ? 'bg-indigo-500 border-indigo-500 text-white' : 'border-slate-700 text-slate-700 group-hover:border-slate-500'}
+                      `}>
+                        {isSelected ? <CheckCircle2 size={16} /> : <div className="text-[10px] font-black">{String.fromCharCode(65 + i)}</div>}
                       </div>
-                      <span className={`font-medium text-lg ${isSelected ? 'text-indigo-900' : 'text-slate-700'}`}>{option}</span>
-                    </div>
-                  )
+                      <span className={`text-xl font-medium ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
+                        {option}
+                      </span>
+                    </button>
+                  );
                 })}
               </div>
-            </div>
-          ))}
+
+              <div className="flex justify-between items-center pt-10">
+                <button 
+                  disabled={currentQuestion === 0}
+                  onClick={() => setCurrentQuestion(prev => prev - 1)}
+                  className="btn-secondary disabled:opacity-20"
+                >
+                  Previous Entry
+                </button>
+                
+                <div className="flex gap-2">
+                  {quiz.questions.map((_, i) => (
+                    <div 
+                      key={i}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${i === currentQuestion ? 'w-6 bg-indigo-500' : 'bg-slate-800'}`}
+                    />
+                  ))}
+                </div>
+
+                <button 
+                  disabled={currentQuestion === quiz.questions.length - 1}
+                  onClick={() => setCurrentQuestion(prev => prev + 1)}
+                  className="btn-premium"
+                >
+                  Next entry <ChevronRight size={18} />
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
-        <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 flex justify-center z-40 shadow-lg">
-          <button onClick={handleSubmit} className="bg-slate-900 text-white px-12 py-4 rounded-xl font-bold text-lg hover:bg-slate-800 transition shadow-xl transform hover:-translate-y-1 w-full max-w-md">
-            Submit Assessment
-          </button>
-        </div>
-      </div>
+        {/* Bottom Alert */}
+        {warnings > 0 && (
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-rose-500 text-white px-6 py-3 rounded-full shadow-2xl animate-pulse">
+            <Info size={20} />
+            <span className="font-bold tracking-tight">PROCTORING ALERT: UNUSUAL BEHAVIOR LOGGED</span>
+          </div>
+        )}
+      </main>
     </div>
   );
 };
 
-export default TakeQuiz;
+export default TakeQuiz;

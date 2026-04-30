@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 import {
-  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, AreaChart, Area
 } from 'recharts';
-import { CheckCircle, XCircle, TrendingUp, Users } from 'lucide-react';
+import { 
+  CheckCircle, XCircle, TrendingUp, Users, Brain, 
+  Activity, ShieldCheck, Zap, BarChart3, PieChart as PieIcon 
+} from 'lucide-react';
 
 const AnalyticsTab = ({ classId }) => {
   const [data, setData] = useState(null);
@@ -15,7 +19,6 @@ const AnalyticsTab = ({ classId }) => {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         const token = userInfo ? userInfo.token : null;
 
-        // Parallel fetching for optimized loading
         const [analyticsRes, classRes] = await Promise.all([
           axios.get(`https://edunexus-api-w6xc.onrender.com/api/classes/${classId}/analytics`, { headers: { Authorization: `Bearer ${token}` } }),
           axios.get(`https://edunexus-api-w6xc.onrender.com/api/classes/details/${classId}`, { headers: { Authorization: `Bearer ${token}` } })
@@ -30,30 +33,35 @@ const AnalyticsTab = ({ classId }) => {
   }, [classId]);
 
   if (loading) return (
-    <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+    <div className="flex flex-col justify-center items-center h-96 gap-6">
+      <div className="relative">
+        <div className="w-16 h-16 border-4 border-indigo-500/10 border-t-indigo-500 rounded-full animate-spin"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Brain className="text-indigo-400 animate-pulse" size={24} />
+        </div>
+      </div>
+      <p className="text-indigo-400/60 font-black uppercase tracking-[0.3em] text-[10px]">Processing Intelligence...</p>
     </div>
   );
 
-  if (!data) return <div className="text-center p-10 text-slate-500">No data available.</div>;
+  if (!data) return (
+    <div className="flex flex-col items-center justify-center p-20 glass-panel rounded-[3rem] border-slate-800/50">
+      <ShieldCheck size={48} className="text-slate-700 mb-4" />
+      <p className="text-slate-500 font-black uppercase tracking-widest text-sm text-center">Neural Matrix Empty.<br/>No data streams detected.</p>
+    </div>
+  );
 
   const { assignments = [], submissions = [], quizzes = [], quizResults = [], totalStudents = 1 } = data;
 
-  // --- 1. CALCULATIONS ---
-
-  // A. Assignment Submission Status
-  // Total expected submissions = (Total Assignments) * (Total Students)
   const totalExpectedSubmissions = (assignments.length * totalStudents) || 1;
   const totalSubmissionsDone = submissions.length;
   const totalSubmissionsMissing = Math.max(0, totalExpectedSubmissions - totalSubmissionsDone);
 
   const submissionData = [
-    { name: 'Submitted', value: totalSubmissionsDone, color: '#10b981' }, // Emerald
-    { name: 'Missing', value: totalSubmissionsMissing, color: '#ef4444' } // Red
+    { name: 'Executed', value: totalSubmissionsDone, color: '#10b981' },
+    { name: 'Pending', value: totalSubmissionsMissing, color: '#f43f5e' }
   ];
 
-  // B. Class Test Average Score
-  // Combine all quiz scores and average them
   const allQuizScores = quizResults.map(r => {
     const q = quizzes.find(quiz => quiz._id === r.quizId);
     if (!q || !q.questions.length) return 0;
@@ -64,8 +72,6 @@ const AnalyticsTab = ({ classId }) => {
     ? Math.round(allQuizScores.reduce((a, b) => a + b, 0) / allQuizScores.length)
     : 0;
 
-  // C. Assignments vs Quizzes Performance (Bar Chart)
-  // Group by "Assignment" vs "Quiz"
   const assignmentAvg = submissions.length
     ? Math.round(submissions.reduce((acc, curr) => acc + (curr.grade || 0), 0) / submissions.length)
     : 0;
@@ -75,104 +81,150 @@ const AnalyticsTab = ({ classId }) => {
     : 0;
 
   const performanceData = [
-    { name: 'Assignments', score: assignmentAvg, fill: '#6366f1' },
-    { name: 'Quizzes', score: quizAvg, fill: '#f59e0b' }
+    { name: 'Submissions', score: assignmentAvg, fill: 'url(#gradientIndigo)' },
+    { name: 'Synapses', score: quizAvg, fill: 'url(#gradientAmber)' }
   ];
 
   return (
-    <div className="max-w-6xl mx-auto animate-fadeIn pb-10 space-y-8">
-
-      {/* --- ROW 1: KEY METRICS CARDS --- */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="max-w-7xl mx-auto space-y-12 pb-20">
+      
+      {/* --- STAT CARDS --- */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <StatCard
-          label="Assignments Submitted"
+          label="Submission Rate"
           value={totalSubmissionsDone}
-          subtext={`/${totalExpectedSubmissions} Expected`}
+          total={totalExpectedSubmissions}
+          percent={Math.round((totalSubmissionsDone / totalExpectedSubmissions) * 100)}
           icon={<CheckCircle size={24} />}
-          color="text-emerald-600 bg-emerald-50 border-emerald-100"
+          color="indigo"
         />
         <StatCard
-          label="Assignments Missing"
+          label="Pending Syncs"
           value={totalSubmissionsMissing}
-          subtext="Pending student work"
-          icon={<XCircle size={24} />}
-          color="text-red-500 bg-red-50 border-red-100"
+          total={totalExpectedSubmissions}
+          percent={Math.round((totalSubmissionsMissing / totalExpectedSubmissions) * 100)}
+          icon={<Activity size={24} />}
+          color="rose"
         />
         <StatCard
-          label="Test Class Average"
+          label="Neural Accuracy"
           value={`${classTestAvg}%`}
-          subtext="Across all quizzes"
-          icon={<TrendingUp size={24} />}
-          color="text-indigo-600 bg-indigo-50 border-indigo-100"
+          subtext="Collective Score"
+          icon={<Zap size={24} />}
+          color="amber"
         />
       </div>
 
-      {/* --- ROW 2: CHARTS --- */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* --- CHARTS GRID --- */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        
+        {/* PIE CHART */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          className="glass-panel p-10 rounded-[3rem] border-slate-800/50 flex flex-col group hover:border-indigo-500/30 transition-all duration-500"
+        >
+          <div className="flex items-center justify-between mb-10">
+            <h3 className="font-black text-white text-lg uppercase tracking-tight flex items-center gap-4">
+              <div className="p-2.5 bg-indigo-500/10 rounded-xl text-indigo-400 border border-indigo-500/20">
+                <PieIcon size={18} />
+              </div>
+              Submission Distribution
+            </h3>
+          </div>
 
-        {/* 1. SUBMISSION STATUS (PIE CHART) */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-          <h3 className="font-bold text-slate-800 text-lg mb-6 flex items-center gap-2">
-            <Users size={20} className="text-slate-400" /> Submission Status
-          </h3>
-          <div className="flex-1 min-h-[300px] relative">
+          <div className="flex-1 min-h-[350px] relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={submissionData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={80}
-                  outerRadius={110}
-                  paddingAngle={5}
+                  innerRadius={100}
+                  outerRadius={140}
+                  paddingAngle={8}
                   dataKey="value"
+                  animationDuration={1500}
                 >
                   {submissionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                   ))}
                 </Pie>
-                <Tooltip
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                <Tooltip 
+                  content={<CustomTooltip />}
                 />
-                <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
-            {/* Centered Total Label */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none pb-8">
-              <p className="text-3xl font-extrabold text-slate-800">{Math.round((totalSubmissionsDone / totalExpectedSubmissions) * 100) || 0}%</p>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Rate</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mb-4">
+              <span className="text-5xl font-black text-white">{Math.round((totalSubmissionsDone / totalExpectedSubmissions) * 100) || 0}%</span>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">Efficiency</span>
             </div>
           </div>
-        </div>
 
-        {/* 2. SCORERS PERFORMANCE (BAR CHART) */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-          <h3 className="font-bold text-slate-800 text-lg mb-6 flex items-center gap-2">
-            <TrendingUp size={20} className="text-slate-400" /> Average Scores
-          </h3>
-          <div className="flex-1 min-h-[300px]">
+          <div className="grid grid-cols-2 gap-4 mt-8">
+            {submissionData.map((entry, idx) => (
+              <div key={idx} className="bg-slate-900/50 border border-slate-800/50 p-4 rounded-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{entry.name}</span>
+                </div>
+                <span className="text-sm font-black text-white">{entry.value}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* BAR CHART */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          className="glass-panel p-10 rounded-[3rem] border-slate-800/50 flex flex-col group hover:border-indigo-500/30 transition-all duration-500"
+        >
+          <div className="flex items-center justify-between mb-10">
+            <h3 className="font-black text-white text-lg uppercase tracking-tight flex items-center gap-4">
+              <div className="p-2.5 bg-amber-500/10 rounded-xl text-amber-400 border border-amber-500/20">
+                <BarChart3 size={18} />
+              </div>
+              Performance Matrix
+            </h3>
+          </div>
+
+          <div className="flex-1 min-h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={performanceData} barSize={60}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <BarChart data={performanceData} barSize={60} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <defs>
+                  <linearGradient id="gradientIndigo" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.8}/>
+                    <stop offset="100%" stopColor="#4338ca" stopOpacity={0.4}/>
+                  </linearGradient>
+                  <linearGradient id="gradientAmber" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.8}/>
+                    <stop offset="100%" stopColor="#b45309" stopOpacity={0.4}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" opacity={0.5} />
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 14, fontWeight: 'bold', fill: '#64748b' }}
+                  tick={{ fontSize: 10, fontWeight: 900, fill: '#64748b', letterSpacing: '0.1em' }}
                   axisLine={false}
                   tickLine={false}
-                  dy={10}
+                  dy={20}
                 />
                 <YAxis
                   domain={[0, 100]}
-                  unit="%"
-                  tick={{ fontSize: 12, fill: '#64748b' }}
+                  tick={{ fontSize: 10, fontWeight: 900, fill: '#64748b' }}
                   axisLine={false}
                   tickLine={false}
                 />
-                <Tooltip
-                  cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                <Tooltip 
+                  cursor={{ fill: 'rgba(255,255,255,0.03)', radius: 12 }}
+                  content={<CustomTooltip />}
                 />
-                <Bar dataKey="score" radius={[8, 8, 0, 0]} name="Avg Score (0-100)">
+                <Bar 
+                  dataKey="score" 
+                  radius={[12, 12, 0, 0]} 
+                  animationDuration={2000}
+                >
                   {performanceData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
@@ -180,27 +232,89 @@ const AnalyticsTab = ({ classId }) => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+          
+          <div className="mt-8 p-6 bg-slate-900/50 rounded-[2rem] border border-slate-800/50">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-indigo-500/10 rounded-2xl text-indigo-400 border border-indigo-500/20 animate-pulse">
+                <Brain size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Global Intelligence</p>
+                <p className="text-sm font-bold text-white mt-0.5">Average cohort accuracy is operating at {classTestAvg}% efficiency.</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
       </div>
-
     </div>
   );
 };
 
-const StatCard = ({ label, value, subtext, icon, color }) => (
-  <div className={`p-6 rounded-2xl border shadow-sm flex items-start justify-between ${color.replace('text-', 'border-').replace('bg-', 'hover:shadow-md transition ')} bg-white border-slate-200 group`}>
-    <div>
-      <p className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-1 opacity-80">{label}</p>
-      <h4 className="text-4xl font-extrabold text-slate-800 tracking-tight">{value}</h4>
-      <p className="text-xs font-bold mt-2 opacity-60 flex items-center gap-1">
-        {subtext}
-      </p>
-    </div>
-    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${color} shadow-sm group-hover:scale-110 transition-transform`}>
-      {icon}
-    </div>
-  </div>
-);
+const StatCard = ({ label, value, total, percent, icon, color }) => {
+  const colorMap = {
+    indigo: { text: 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20', bar: 'bg-indigo-500' },
+    rose: { text: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/20', bar: 'bg-rose-500' },
+    amber: { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', bar: 'bg-amber-500' }
+  };
 
-export default AnalyticsTab;
+  const style = colorMap[color];
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      className="glass-panel p-8 rounded-[2.5rem] border-slate-800/50 relative overflow-hidden group"
+    >
+      <div className="relative z-10">
+        <div className="flex justify-between items-start mb-6">
+          <div className={`p-3 rounded-2xl ${style.bg} ${style.text} border ${style.border} group-hover:scale-110 transition-transform duration-500`}>
+            {icon}
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">{label}</p>
+            <h4 className="text-4xl font-black text-white tracking-tight">{value}</h4>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+            <span className="text-slate-500">{total ? `Sync ${value}/${total}` : 'Overall Score'}</span>
+            <span className={style.text}>{total ? `${percent}%` : 'Collective'}</span>
+          </div>
+          <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              whileInView={{ width: total ? `${percent}%` : '100%' }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className={`h-full ${style.bar} shadow-[0_0_15px_rgba(0,0,0,0.5)]`}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Decor */}
+      <div className={`absolute -bottom-8 -right-8 w-32 h-32 ${style.bg} blur-[60px] opacity-20 rounded-full group-hover:opacity-40 transition-opacity duration-500`}></div>
+    </motion.div>
+  );
+};
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 p-4 rounded-2xl shadow-2xl">
+        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">{label || payload[0].name}</p>
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: payload[0].color || payload[0].payload.fill }}></div>
+          <p className="text-lg font-black text-white">
+            {payload[0].value}
+            <span className="text-xs text-slate-500 ml-1">{payload[0].name === 'Executed' || payload[0].name === 'Pending' ? 'Nodes' : '%'}</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+export default AnalyticsTab;

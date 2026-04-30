@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, Save, Plus, Trash2, Calendar, CheckCircle, HelpCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  ArrowLeft, Save, Plus, Trash2, Calendar, CheckCircle, 
+  HelpCircle, Sparkles, Terminal, ShieldCheck, Zap
+} from 'lucide-react';
 
 const CreateQuiz = () => {
   const { classId } = useParams();
@@ -64,7 +68,6 @@ const CreateQuiz = () => {
       await axios.post('https://edunexus-api-w6xc.onrender.com/api/quizzes/create', payload, {
         headers: { Authorization: `Bearer ${userInfo?.token}` }
       });
-      alert('Quiz Published Successfully! 🚀');
       navigate(`/class/${classId}`);
     } catch (err) { alert('Error creating quiz'); } finally {
       setLoading(false);
@@ -72,134 +75,186 @@ const CreateQuiz = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20 font-sans">
-
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-30">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <button onClick={() => navigate(-1)} className="p-2 hover:bg-slate-100 rounded-full transition text-slate-500">
+    <div className="min-h-screen bg-[#020617] text-slate-100 pb-20 font-sans selection:bg-indigo-500/30">
+      
+      {/* --- HEADER BAR --- */}
+      <nav className="bg-slate-900/50 backdrop-blur-xl border-b border-slate-800/50 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={() => navigate(-1)} 
+              className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700"
+            >
               <ArrowLeft size={20} />
             </button>
-            <h1 className="text-xl font-bold text-slate-800">Create New Quiz</h1>
+            <div className="h-8 w-px bg-slate-800"></div>
+            <h1 className="text-xl font-black text-white flex items-center gap-3">
+              Synaptic Architect <span className="text-indigo-500">.</span>
+            </h1>
           </div>
-          <div className="flex gap-3">
-            <button onClick={addQuestion} className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 transition">
-              <Plus size={18} /> Add Question
+
+          <div className="flex gap-4">
+            <button 
+              onClick={addQuestion} 
+              className="btn-secondary px-6 py-2.5 text-xs font-black uppercase tracking-widest"
+            >
+              <Plus size={16} /> New Node
             </button>
-            <button onClick={handleSubmit} disabled={loading} className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 disabled:opacity-50">
-              {loading ? 'Publishing...' : <><Save size={18} /> Publish Quiz</>}
+            <button 
+              onClick={handleSubmit} 
+              disabled={loading} 
+              className="btn-premium px-8 py-2.5 text-sm shadow-indigo-500/20"
+            >
+              {loading ? 'Initializing...' : <><Save size={18} /> Deploy Module</>}
             </button>
           </div>
         </div>
-      </div>
+      </nav>
 
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-4xl mx-auto px-6 py-12 relative">
+        {/* Background Accents */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-600/5 blur-[100px] rounded-full pointer-events-none -z-10"></div>
 
-        {/* Quiz Details Card */}
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-          <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2"><FileTextIcon /> Basic Details</h2>
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Quiz Title</label>
-              <input
-                className="input-field text-lg font-medium"
-                placeholder="e.g. Mid-Term Examination"
-                value={title} onChange={e => setTitle(e.target.value)}
-                autoFocus
-              />
+        <div className="space-y-12">
+          {/* Quiz Details Panel */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-panel p-10 rounded-[3rem] border-slate-800/50"
+          >
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
+                <Terminal size={20} />
+              </div>
+              <h2 className="text-xl font-black text-white uppercase tracking-tight">Configuration Payload</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><Calendar size={16} /> Starts At</label>
-                <input type="datetime-local" className="input-field" value={startDate} onChange={e => setStartDate(e.target.value)} />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><Calendar size={16} /> Ends At</label>
-                <input type="datetime-local" className="input-field" value={dueDate} onChange={e => setDueDate(e.target.value)} />
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Questions List */}
-        <div className="space-y-6">
-          {questions.map((q, qIndex) => (
-            <div key={qIndex} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative group transition hover:border-indigo-200">
-
-              <div className="flex justify-between items-start mb-6">
-                <div className="flex items-center gap-3">
-                  <span className="bg-indigo-100 text-indigo-700 font-bold w-8 h-8 flex items-center justify-center rounded-lg">{qIndex + 1}</span>
-                  <select
-                    className="bg-slate-50 border border-slate-200 text-slate-700 text-sm font-bold rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={q.type} onChange={e => handleUpdateQuestion(qIndex, 'type', e.target.value)}
-                  >
-                    <option value="single">Single Choice</option>
-                    <option value="multi">Multiple Choice</option>
-                  </select>
-                </div>
-
-                {questions.length > 1 && (
-                  <button onClick={() => removeQuestion(qIndex)} className="text-slate-400 hover:text-red-500 transition p-2 hover:bg-red-50 rounded-lg">
-                    <Trash2 size={18} />
-                  </button>
-                )}
-              </div>
-
-              <div className="mb-6">
+            <div className="space-y-8">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Module Title</label>
                 <input
-                  className="w-full text-lg font-medium border-b-2 border-slate-100 pb-2 outline-none focus:border-indigo-500 bg-transparent transition placeholder:text-slate-300"
-                  placeholder="Type your question here..."
-                  value={q.question} onChange={e => handleUpdateQuestion(qIndex, 'question', e.target.value)}
+                  className="input-premium text-2xl font-black tracking-tight py-6"
+                  placeholder="e.g. Advanced Quantum Neural Networks"
+                  value={title} onChange={e => setTitle(e.target.value)}
+                  autoFocus
                 />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {q.options.map((opt, oIndex) => {
-                  const isCorrect = q.correct.includes(oIndex);
-                  return (
-                    <div
-                      key={oIndex}
-                      onClick={() => toggleCorrectOption(qIndex, oIndex)}
-                      className={`
-                                          flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all
-                                          ${isCorrect ? 'bg-green-50 border-green-500 shadow-sm' : 'bg-white border-slate-100 hover:border-indigo-200'}
-                                      `}
-                    >
-                      <div className={`
-                                          w-6 h-6 rounded flex items-center justify-center border-2 transition
-                                          ${isCorrect ? 'bg-green-500 border-green-500 text-white' : 'bg-white border-slate-300'}
-                                          ${q.type === 'single' ? 'rounded-full' : 'rounded-md'}
-                                      `}>
-                        {isCorrect && <CheckCircle size={14} />}
-                      </div>
-                      <input
-                        className="flex-1 bg-transparent outline-none font-medium text-slate-700 placeholder:text-slate-400"
-                        placeholder={`Option ${oIndex + 1}`}
-                        value={opt} onChange={e => handleUpdateOption(qIndex, oIndex, e.target.value)}
-                        onClick={e => e.stopPropagation()}
-                      />
-                    </div>
-                  );
-                })}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1 flex items-center gap-2">
+                    <Calendar size={14} className="text-indigo-400" /> Synchronization Start
+                  </label>
+                  <input type="datetime-local" className="input-premium" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1 flex items-center gap-2">
+                    <Clock size={14} className="text-rose-400" /> Connection Timeout
+                  </label>
+                  <input type="datetime-local" className="input-premium" value={dueDate} onChange={e => setDueDate(e.target.value)} />
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          </motion.div>
 
-        <div className="flex justify-center">
-          <button onClick={addQuestion} className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-dashed border-slate-300 text-slate-500 font-bold rounded-xl hover:border-indigo-500 hover:text-indigo-600 transition w-full justify-center">
-            <Plus size={20} /> Add New Question
-          </button>
-        </div>
+          {/* Questions Grid */}
+          <div className="space-y-8">
+            <AnimatePresence>
+              {questions.map((q, qIndex) => (
+                <motion.div 
+                  key={qIndex}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="glass-panel p-10 rounded-[3rem] border-slate-800/50 relative group hover:border-indigo-500/30 transition-all duration-500"
+                >
+                  <div className="flex justify-between items-start mb-10">
+                    <div className="flex items-center gap-4">
+                      <span className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-black w-12 h-12 flex items-center justify-center rounded-2xl text-xl shadow-xl shadow-indigo-500/5">
+                        {qIndex + 1}
+                      </span>
+                      <select
+                        className="bg-slate-900 border border-slate-800 text-slate-300 text-[10px] font-black uppercase tracking-widest rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer"
+                        value={q.type} onChange={e => handleUpdateQuestion(qIndex, 'type', e.target.value)}
+                      >
+                        <option value="single">Single Logic Stream</option>
+                        <option value="multi">Parallel Logic Streams</option>
+                      </select>
+                    </div>
 
+                    {questions.length > 1 && (
+                      <button 
+                        onClick={() => removeQuestion(qIndex)} 
+                        className="text-slate-600 hover:text-rose-500 transition-all p-3 bg-slate-900/50 rounded-2xl hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="mb-10">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1 mb-2 block">Question Invariant</label>
+                    <textarea
+                      className="w-full text-2xl font-black bg-transparent outline-none border-b-2 border-slate-800 focus:border-indigo-500 transition-all placeholder:text-slate-800 py-4 resize-none leading-tight"
+                      placeholder="Input neural query..."
+                      rows={1}
+                      value={q.question} onChange={e => handleUpdateQuestion(qIndex, 'question', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {q.options.map((opt, oIndex) => {
+                      const isCorrect = q.correct.includes(oIndex);
+                      return (
+                        <div
+                          key={oIndex}
+                          onClick={() => toggleCorrectOption(qIndex, oIndex)}
+                          className={`
+                            flex items-center gap-5 p-6 rounded-[2rem] border-2 cursor-pointer transition-all duration-300
+                            ${isCorrect 
+                              ? 'bg-emerald-500/5 border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.05)] scale-[1.02]' 
+                              : 'bg-slate-950/30 border-slate-800/50 hover:border-indigo-500/30'}
+                          `}
+                        >
+                          <div className={`
+                            w-8 h-8 rounded-xl flex items-center justify-center border-2 transition-all duration-300
+                            ${isCorrect ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-900 border-slate-700 text-slate-700'}
+                          `}>
+                            {isCorrect ? <CheckCircle size={18} /> : <span className="text-[10px] font-black">{String.fromCharCode(65 + oIndex)}</span>}
+                          </div>
+                          <input
+                            className="flex-1 bg-transparent outline-none font-black text-lg text-white placeholder:text-slate-700"
+                            placeholder={`Node Data ${oIndex + 1}`}
+                            value={opt} onChange={e => handleUpdateOption(qIndex, oIndex, e.target.value)}
+                            onClick={e => e.stopPropagation()}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex justify-center pt-6"
+          >
+            <button 
+              onClick={addQuestion} 
+              className="flex items-center gap-4 px-12 py-6 bg-slate-900/50 border-2 border-dashed border-slate-800 text-slate-500 font-black uppercase tracking-widest rounded-[2rem] hover:border-indigo-500 hover:text-indigo-400 hover:bg-indigo-500/5 transition-all w-full justify-center group"
+            >
+              <Plus size={24} className="group-hover:rotate-90 transition-transform duration-500" /> Initialize New Synaptic Node
+            </button>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
 };
 
-const FileTextIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /></svg>
-);
-
-export default CreateQuiz;
+export default CreateQuiz;

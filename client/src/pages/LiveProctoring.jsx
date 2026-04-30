@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
-import { ShieldAlert, AlertTriangle, Play, Pause, Lock, Unlock, Eye, Activity } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  ShieldAlert, AlertTriangle, Lock, Unlock, 
+  Eye, Activity, Users, ArrowLeft, 
+  Terminal, ShieldCheck, Zap
+} from 'lucide-react';
 
 const socket = io.connect("https://edunexus-api-w6xc.onrender.com");
 
@@ -27,7 +32,7 @@ const LiveProctoring = () => {
         if (data.status === 'cheating') {
           newStatus = 'Suspicious';
           const timestamp = new Date().toLocaleTimeString();
-          newLogs.unshift({ time: timestamp, message: data.reason }); // Add new logs to top
+          newLogs.unshift({ time: timestamp, message: data.reason });
         } else if (data.status === 'frozen') {
           newStatus = 'Frozen';
         } else if (data.status === 'active') {
@@ -58,126 +63,170 @@ const LiveProctoring = () => {
     socket.emit('teacher_action', { studentSocketId: targetSocketId, action });
   };
 
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans">
+  const activeCount = Object.keys(students).length;
 
-      {/* Header */}
-      <header className="bg-slate-800 border-b border-slate-700 p-6 sticky top-0 z-20 shadow-lg">
+  return (
+    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans selection:bg-indigo-500/30">
+      
+      {/* --- COMMAND HEADER --- */}
+      <header className="bg-slate-900/50 backdrop-blur-xl border-b border-slate-800/50 p-6 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-red-500/20 text-red-500 p-2 rounded-lg animate-pulse">
-              <Activity size={24} />
-            </div>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => navigate(-1)} 
+              className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <div className="h-10 w-px bg-slate-800"></div>
             <div>
-              <h1 className="text-xl font-bold text-white tracking-wide">Live Proctoring Dashboard</h1>
-              <p className="text-xs text-slate-400 font-mono">SESSION ID: {quizId}</p>
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={18} className="text-indigo-400" />
+                <h1 className="text-xl font-bold tracking-tight">Sentinel Pro <span className="text-indigo-500 text-sm font-mono ml-2">v4.0_LIVE</span></h1>
+              </div>
+              <p className="text-[10px] text-slate-500 font-mono tracking-widest mt-0.5 uppercase">Neural Link: {quizId}</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-2xl font-bold text-white">{Object.keys(students).length}</p>
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Active Students</p>
+
+          <div className="flex items-center gap-8">
+            <div className="flex gap-10">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-white leading-none">{activeCount}</p>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Students</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center gap-2 text-emerald-400 leading-none">
+                  <Activity size={18} className="animate-pulse" />
+                  <span className="text-2xl font-bold">STABLE</span>
+                </div>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Link Status</p>
+              </div>
             </div>
-            <button onClick={() => navigate(-1)} className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-bold transition text-sm border border-slate-600">
-              Exit Session
+            <button className="btn-premium px-6 py-2.5 text-sm">
+              <Zap size={16} /> Broadcast Alert
             </button>
           </div>
         </div>
       </header>
 
-      {/* Grid */}
-      <main className="max-w-7xl mx-auto p-6">
-        {Object.keys(students).length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-500 opacity-50">
-            <Eye size={64} className="mb-4" />
-            <h2 className="text-2xl font-bold">Waiting for students to join...</h2>
-            <p>Ask students to start the quiz.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {Object.entries(students).map(([socketId, student]) => {
-              const isSuspicious = student.status === 'Suspicious';
-              const isFrozen = student.status === 'Frozen';
+      {/* --- GRID DISPLAY --- */}
+      <main className="max-w-7xl mx-auto p-10">
+        <AnimatePresence mode="popLayout">
+          {activeCount === 0 ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-40 text-slate-600"
+            >
+              <div className="w-24 h-24 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 animate-pulse">
+                <Users size={40} />
+              </div>
+              <h2 className="text-2xl font-bold mb-2">Awaiting Neural Uplink</h2>
+              <p className="text-slate-500 font-medium">Students will appear here as they connect to the assessment server.</p>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Object.entries(students).map(([socketId, student]) => {
+                const isSuspicious = student.status === 'Suspicious';
+                const isFrozen = student.status === 'Frozen';
 
-              return (
-                <div key={socketId} className={`
-                                    relative bg-slate-800 rounded-xl overflow-hidden shadow-xl border-2 transition-all duration-300
-                                    ${isSuspicious ? 'border-red-500 shadow-red-500/20' : isFrozen ? 'border-cyan-500 shadow-cyan-500/20' : 'border-slate-700 hover:border-slate-600'}
-                                `}>
-                  {/* Status Bar */}
-                  <div className={`px-4 py-2 flex justify-between items-center text-xs font-bold uppercase tracking-wider
-                                        ${isSuspicious ? 'bg-red-500 text-white' : isFrozen ? 'bg-cyan-600 text-white' : 'bg-slate-700 text-emerald-400'}
-                                    `}>
-                    <span>{student.status}</span>
-                    {isSuspicious && <ShieldAlert size={16} />}
-                    {isFrozen && <Lock size={16} />}
-                  </div>
+                return (
+                  <motion.div 
+                    layout
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    key={socketId} 
+                    className={`
+                      relative glass-panel rounded-3xl overflow-hidden border-2 transition-all duration-500
+                      ${isSuspicious ? 'border-rose-500/50 shadow-[0_0_40px_rgba(244,63,94,0.15)] ring-4 ring-rose-500/10' : 
+                        isFrozen ? 'border-cyan-500/50' : 'border-slate-800/50 hover:border-indigo-500/30'}
+                    `}
+                  >
+                    {/* Visual Warning Pulse */}
+                    {isSuspicious && (
+                      <div className="absolute inset-0 bg-rose-500/5 animate-pulse pointer-events-none"></div>
+                    )}
 
-                  <div className="p-6">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center text-xl font-bold text-slate-300 border border-slate-600">
-                        {student.name[0]}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-white">{student.name}</h3>
-                        <p className="text-xs text-slate-400 font-mono">ID: {socketId.slice(0, 8)}...</p>
-                      </div>
+                    <div className={`px-5 py-3 flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em]
+                      ${isSuspicious ? 'bg-rose-500 text-white' : isFrozen ? 'bg-cyan-500 text-white' : 'bg-slate-800 text-emerald-400'}
+                    `}>
+                      <span className="flex items-center gap-2">
+                        <span className={`w-1.5 h-1.5 rounded-full ${isSuspicious ? 'bg-white' : 'bg-emerald-400 animate-pulse'}`}></span>
+                        {student.status}
+                      </span>
+                      {isSuspicious ? <ShieldAlert size={14} /> : <Eye size={14} />}
                     </div>
 
-                    {/* Activity Log */}
-                    <div className="bg-black/40 rounded-lg p-3 h-32 overflow-y-auto custom-scrollbar mb-6 border border-slate-700/50">
-                      {student.logs.length === 0 ? (
-                        <p className="text-xs text-slate-500 italic text-center mt-10">No suspicious activity detected.</p>
-                      ) : (
-                        student.logs.map((log, i) => (
-                          <div key={i} className="text-xs mb-2 flex gap-2">
-                            <span className="text-slate-500 font-mono shrink-0">[{log.time}]</span>
-                            <span className="text-red-400 font-medium">{log.message}</span>
+                    <div className="p-8">
+                      <div className="flex items-center gap-5 mb-8">
+                        <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow-lg">
+                          {student.name[0]}
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-white tracking-tight">{student.name}</h3>
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono mt-1">
+                            <Terminal size={12} /> {socketId.slice(0, 12)}
                           </div>
-                        ))
-                      )}
-                    </div>
+                        </div>
+                      </div>
 
-                    {/* Controls */}
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        onClick={() => sendAction(socketId, 'warn')}
-                        className="flex flex-col items-center justify-center gap-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 py-2 rounded-lg transition border border-amber-500/20"
-                        title="Send Warning"
-                      >
-                        <AlertTriangle size={18} />
-                        <span className="text-[10px] font-bold uppercase">Warn</span>
-                      </button>
+                      {/* Log Area */}
+                      <div className="bg-slate-950/80 rounded-2xl p-4 h-40 overflow-y-auto mb-8 border border-slate-800/50 space-y-2">
+                        {student.logs.length === 0 ? (
+                          <div className="h-full flex flex-col items-center justify-center opacity-20">
+                            <Activity size={24} />
+                            <span className="text-[10px] font-bold tracking-widest mt-2 uppercase">Nominal Output</span>
+                          </div>
+                        ) : (
+                          student.logs.map((log, i) => (
+                            <motion.div 
+                              initial={{ x: -10, opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              key={i} 
+                              className="text-[11px] flex gap-3 leading-relaxed"
+                            >
+                              <span className="text-slate-600 font-mono shrink-0">{log.time}</span>
+                              <span className="text-rose-400 font-medium">DETECTED: {log.message}</span>
+                            </motion.div>
+                          ))
+                        )}
+                      </div>
 
-                      {isFrozen ? (
+                      {/* Action Matrix */}
+                      <div className="flex gap-3">
                         <button
-                          onClick={() => sendAction(socketId, 'unfreeze')}
-                          className="flex flex-col items-center justify-center gap-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 py-2 rounded-lg transition border border-emerald-500/20 col-span-2"
-                          title="Unfreeze Test"
+                          onClick={() => sendAction(socketId, 'warn')}
+                          className="flex-1 btn-secondary py-3 text-[11px] uppercase tracking-wider font-black border-amber-500/20 text-amber-500 hover:bg-amber-500/10"
                         >
-                          <Unlock size={18} />
-                          <span className="text-[10px] font-bold uppercase">Unfreeze Student</span>
+                          Send Warning
                         </button>
-                      ) : (
-                        <button
-                          onClick={() => sendAction(socketId, 'freeze')}
-                          className="flex flex-col items-center justify-center gap-1 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 py-2 rounded-lg transition border border-cyan-500/20 col-span-2"
-                          title="Freeze Test"
-                        >
-                          <Lock size={18} />
-                          <span className="text-[10px] font-bold uppercase">Freeze Test</span>
-                        </button>
-                      )}
+
+                        {isFrozen ? (
+                          <button
+                            onClick={() => sendAction(socketId, 'unfreeze')}
+                            className="flex-[1.5] btn-premium from-emerald-600 to-teal-600 py-3 text-[11px] uppercase tracking-wider font-black shadow-emerald-500/20"
+                          >
+                            <Unlock size={14} /> Resume Session
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => sendAction(socketId, 'freeze')}
+                            className="flex-[1.5] btn-premium from-rose-600 to-pink-700 py-3 text-[11px] uppercase tracking-wider font-black shadow-rose-500/20"
+                          >
+                            <Lock size={14} /> Freeze Terminal
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );
 };
 
-export default LiveProctoring;
+export default LiveProctoring;

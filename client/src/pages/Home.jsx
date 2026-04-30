@@ -1,145 +1,199 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, ShieldCheck, Video, BarChart2, ArrowRight } from 'lucide-react';
+import { BookOpen, ShieldCheck, Video, BarChart2, ArrowRight, Sparkles, Brain, Zap, Globe } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Home = () => {
   const navigate = useNavigate();
 
-  return (
-    <div className="min-h-screen font-sans selection:bg-indigo-100 selection:text-indigo-700">
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { staggerChildren: 0.2 }
+    }
+  };
 
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  return (
+    <div className="min-h-screen mesh-gradient selection:bg-indigo-500/30 selection:text-white">
+      
       {/* --- NAVBAR --- */}
-      <nav className="fixed w-full z-50 glass">
+      <nav className="fixed w-full z-50 glass-panel">
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="bg-indigo-600 text-white p-2 rounded-lg">
+          <motion.div 
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            className="flex items-center gap-3 cursor-pointer" 
+            onClick={() => navigate('/')}
+          >
+            <div className="bg-indigo-600 text-white p-2.5 rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.4)]">
               <BookOpen size={24} strokeWidth={2.5} />
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-800">EduNexus</span>
-          </div>
+            <span className="text-2xl font-bold tracking-tight gradient-text">EduNexus</span>
+          </motion.div>
 
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">Features</a>
-            <a href="#about" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">About</a>
-            <div className="h-4 w-px bg-slate-200"></div>
-            <button onClick={() => navigate('/login')} className="text-sm font-semibold text-slate-700 hover:text-indigo-600 transition">Log in</button>
-            <button onClick={() => navigate('/register')} className="bg-indigo-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">Get Started</button>
+          <div className="hidden md:flex items-center gap-10">
+            <a href="#features" className="nav-link">Features</a>
+            <a href="#proctoring" className="nav-link">AI Proctoring</a>
+            <div className="h-6 w-px bg-slate-800"></div>
+            <button onClick={() => navigate('/login')} className="nav-link hover:text-indigo-400">Log in</button>
+            <button 
+              onClick={() => navigate('/register')} 
+              className="btn-premium px-6 py-2.5 text-sm"
+            >
+              Get Started <Sparkles size={16} />
+            </button>
           </div>
         </div>
       </nav>
 
       {/* --- HERO SECTION --- */}
-      <header className="pt-32 pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-20">
-        <div className="md:w-1/2 space-y-8 animate-fade-in-up">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wide">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-            </span>
-            New: AI Proctoring 2.0
-          </div>
+      <section className="relative pt-44 pb-32 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center relative z-10">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-card border-indigo-500/30 text-indigo-300 text-sm font-semibold mb-8"
+          >
+            <Zap size={16} className="text-indigo-400 animate-pulse" />
+            <span>Next Generation LMS is here</span>
+          </motion.div>
 
-          <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 leading-[1.15] tracking-tight">
-            The Future of <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Smart Learning.</span>
-          </h1>
+          <motion.h1 
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-6xl md:text-8xl font-extrabold leading-[1.1] tracking-tight mb-8"
+          >
+            Master Your Future <br />
+            <span className="gradient-text">With AI Precision.</span>
+          </motion.h1>
 
-          <p className="text-lg text-slate-600 leading-relaxed max-w-lg">
-            Empower your institution with AI-driven insights, secure proctored exams, and seamless live classrooms. All in one platform.
-          </p>
+          <motion.p 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-xl text-slate-400 leading-relaxed max-w-2xl mb-12"
+          >
+            The world's most advanced learning operating system. Secure AI proctoring, 
+            seamless collaboration, and data-driven success — all in one elegant platform.
+          </motion.p>
 
-          {/* UPDATED BUTTONS */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-2">
-            <button onClick={() => navigate('/login?role=STUDENT')} className="btn-primary flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-indigo-200 transition transform hover:scale-105">
-              Student Login <ArrowRight size={20} />
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="flex flex-col sm:flex-row gap-6"
+          >
+            <button 
+              onClick={() => navigate('/login?role=STUDENT')} 
+              className="btn-premium px-10 py-5 text-lg group"
+            >
+              Student Portal <ArrowRight className="group-hover:translate-x-1 transition-transform" />
             </button>
-            <button onClick={() => navigate('/login?role=TEACHER')} className="px-8 py-4 rounded-xl font-bold text-slate-700 border-2 border-slate-200 hover:border-indigo-600 hover:text-indigo-600 transition bg-white shadow-sm hover:shadow-md">
-              Teacher Login
+            <button 
+              onClick={() => navigate('/login?role=TEACHER')} 
+              className="btn-secondary px-10 py-5 text-lg"
+            >
+              Teacher Console <Brain className="text-indigo-400" />
             </button>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Abstract Hero Visual */}
-        <div className="md:w-1/2 relative animate-fade-in-up animate-delay-200">
-          <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl opacity-20 blur-2xl animate-pulse"></div>
-          <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
-            <div className="h-8 bg-slate-50 border-b border-slate-100 flex items-center px-4 gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-400"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-              <div className="w-3 h-3 rounded-full bg-green-400"></div>
-            </div>
-            <img
-              src="https://img.freepik.com/free-vector/online-learning-isometric-concept_1284-17947.jpg"
-              alt="Dashboard Preview"
-              className="w-full h-auto object-cover opacity-90"
-            />
-          </div>
+        {/* Decorative elements */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+      </section>
+
+      {/* --- FEATURES SECTION --- */}
+      <section id="features" className="py-32 px-6 relative">
+        <div className="max-w-7xl mx-auto">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={containerVariants}
+            className="grid md:grid-cols-3 gap-8"
+          >
+            {[
+              { 
+                icon: <ShieldCheck size={32} />, 
+                title: "AI-Gen Sentinel", 
+                desc: "Real-time cheating detection using advanced facial analysis and behavior tracking.",
+                color: "text-indigo-400"
+              },
+              { 
+                icon: <Video size={32} />, 
+                title: "Holographic Rooms", 
+                desc: "Zero-latency video communication for immersive classroom experiences.",
+                color: "text-pink-400"
+              },
+              { 
+                icon: <BarChart2 size={32} />, 
+                title: "Neural Analytics", 
+                desc: "Predictive performance modeling to help students excel in their learning journey.",
+                color: "text-purple-400"
+              }
+            ].map((feature, i) => (
+              <motion.div 
+                key={i}
+                variants={itemVariants}
+                className="glass-card p-10 rounded-3xl group"
+              >
+                <div className={`${feature.color} mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  {feature.icon}
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
+                <p className="text-slate-400 leading-relaxed">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
-      </header>
+      </section>
 
-      {/* --- FEATURES GRID --- */}
-      <section id="features" className="py-24 bg-white relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
-
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Everything you need to teach.</h2>
-            <p className="text-slate-500">Replace your scattered tools with one cohesive operating system for education.</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 group">
-              <div className="w-12 h-12 bg-white rounded-xl border border-slate-100 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform text-indigo-600">
-                <ShieldCheck size={24} />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">AI Proctoring</h3>
-              <p className="text-slate-500 leading-relaxed">
-                Detects tab switching, multiple faces, and suspicious objects automatically using browser-based TensorFlow models.
-              </p>
+      {/* --- STATS SECTION --- */}
+      <section className="py-24 border-y border-slate-800/50 bg-slate-900/30">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+          {[
+            { label: "Active Students", value: "50k+" },
+            { label: "Quizzes Hosted", value: "1.2M" },
+            { label: "Institutions", value: "200+" },
+            { label: "Uptime", value: "99.9%" }
+          ].map((stat, i) => (
+            <div key={stat.label}>
+              <div className="text-4xl font-bold gradient-text mb-2">{stat.value}</div>
+              <div className="text-slate-500 font-medium">{stat.label}</div>
             </div>
-
-            {/* Feature 2 */}
-            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 group">
-              <div className="w-12 h-12 bg-white rounded-xl border border-slate-100 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform text-violet-600">
-                <Video size={24} />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">HD Live Classes</h3>
-              <p className="text-slate-500 leading-relaxed">
-                Crystal clear video conferencing built directly into the browser. No downloads required for students or teachers.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 group">
-              <div className="w-12 h-12 bg-white rounded-xl border border-slate-100 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform text-blue-600">
-                <BarChart2 size={24} />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Smart Analytics</h3>
-              <p className="text-slate-500 leading-relaxed">
-                Track attendance, engagement, and quiz performance with beautiful, real-time data visualizations.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
       {/* --- FOOTER --- */}
-      <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="bg-indigo-600 text-white p-1.5 rounded">
-              <BookOpen size={16} />
+      <footer className="py-16 px-6 border-t border-slate-800/50">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+          <div className="flex items-center gap-3">
+            <div className="bg-indigo-600/20 text-indigo-400 p-2 rounded-xl border border-indigo-500/30">
+              <BookOpen size={20} />
             </div>
-            <span className="text-lg font-bold text-white tracking-tight">EduNexus</span>
+            <span className="text-xl font-bold tracking-tight text-white">EduNexus</span>
           </div>
-          <div className="text-sm">
-            &copy; 2026 EduNexus Inc. All rights reserved.
+          
+          <div className="flex gap-10 text-slate-500 font-medium text-sm">
+            <a href="#" className="hover:text-indigo-400 transition-colors">Privacy</a>
+            <a href="#" className="hover:text-indigo-400 transition-colors">Security</a>
+            <a href="#" className="hover:text-indigo-400 transition-colors">Contact</a>
           </div>
-          <div className="flex gap-6 text-sm font-medium">
-            <a href="#" className="hover:text-white transition">Privacy</a>
-            <a href="#" className="hover:text-white transition">Terms</a>
-            <a href="#" className="hover:text-white transition">Contact</a>
+
+          <div className="text-slate-500 text-sm font-medium">
+            &copy; 2026 EduNexus Quantum Labs. Built for Excellence.
           </div>
         </div>
       </footer>
@@ -147,4 +201,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Home;

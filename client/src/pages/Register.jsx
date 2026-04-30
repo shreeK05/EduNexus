@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { UserPlus, ArrowLeft } from 'lucide-react';
+import { UserPlus, ArrowLeft, ShieldCheck, Sparkles, User, Mail, Lock, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Register = () => {
   const [searchParams] = useSearchParams();
@@ -19,8 +20,7 @@ const Register = () => {
     setLoading(true);
     try {
       await axios.post('https://edunexus-api-w6xc.onrender.com/api/auth/register', { name, email, password, role });
-      alert('Registration Successful! Please Login.');
-      navigate(`/login?role=${role}`); // Redirect to login with correct role
+      navigate(`/login?role=${role}`);
     } catch (err) {
       alert(err.response?.data?.message || 'Registration failed');
     } finally {
@@ -29,110 +29,136 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 font-sans p-6">
+    <div className="min-h-screen mesh-gradient flex items-center justify-center p-6 selection:bg-indigo-500/30">
+      
+      <motion.button 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        onClick={() => navigate('/')} 
+        className="fixed top-10 left-10 nav-link text-white flex items-center gap-2 font-bold"
+      >
+        <ArrowLeft size={20} /> Abort Mission
+      </motion.button>
 
-      {/* Back Button */}
-      <button onClick={() => navigate('/')} className="fixed top-6 left-6 text-slate-500 hover:text-indigo-600 flex items-center gap-2 font-bold transition">
-        <ArrowLeft size={20} /> Home
-      </button>
-
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl flex overflow-hidden border border-slate-100">
-
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="max-w-6xl w-full glass-panel rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row shadow-[0_0_100px_rgba(0,0,0,0.5)]"
+      >
         {/* Left Side: Visual */}
-        <div className="hidden md:flex md:w-5/12 bg-slate-900 p-12 text-white flex-col justify-between relative">
-          <div className="z-10">
-            <h1 className="text-4xl font-extrabold mb-4 leading-tight">Join <br />EduNexus.</h1>
-            <p className="text-slate-400 text-lg">Start your journey with the most advanced AI learning platform.</p>
-          </div>
-          <div className="z-10 space-y-4">
-            <div className="flex items-center gap-3 text-sm font-medium text-slate-300">
-              <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">✓</div>
-              <span>Free for students</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm font-medium text-slate-300">
-              <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">✓</div>
-              <span>AI Proctoring included</span>
-            </div>
+        <div className="hidden md:flex md:w-5/12 bg-gradient-to-br from-indigo-700 to-violet-900 p-16 text-white flex flex-col justify-between relative">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+          
+          <div className="relative z-10">
+            <h1 className="text-5xl font-black mb-6 tracking-tight leading-tight">Join the <br />Nexus.</h1>
+            <p className="text-indigo-100/70 text-lg font-medium">Create your neural profile and start your journey with AI precision.</p>
           </div>
 
-          {/* Decorative Circles */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600 rounded-full blur-[100px] opacity-20 -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-600 rounded-full blur-[100px] opacity-20 translate-y-1/2 -translate-x-1/2"></div>
+          <div className="relative z-10 space-y-6">
+            {[
+              { icon: <ShieldCheck className="text-emerald-400" />, text: "Free for students forever" },
+              { icon: <Sparkles className="text-amber-400" />, text: "AI Proctoring Sentinel" },
+              { icon: <User className="text-indigo-300" />, text: "Verified Teacher Console" }
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-4 text-sm font-bold tracking-wide">
+                <div className="p-2 bg-white/10 rounded-lg border border-white/10">{item.icon}</div>
+                {item.text}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Right Side: Form */}
-        <div className="w-full md:w-7/12 p-8 md:p-12">
-          <div className="max-w-md mx-auto">
-            <div className="text-center mb-10">
-              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 mx-auto mb-4">
-                <UserPlus size={24} />
-              </div>
-              <h2 className="text-2xl font-bold text-slate-900">Create your account</h2>
-              <p className="text-slate-500 mt-2">Enter your personal details to create account</p>
+        <div className="w-full md:w-7/12 p-16 bg-slate-900/50">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="max-w-md mx-auto"
+          >
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-white mb-3">Initialize Profile</h2>
+              <p className="text-slate-400 font-medium">Step into the future of learning.</p>
             </div>
 
-            <form onSubmit={handleRegister} className="space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleRegister} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Full Name</label>
-                  <input
-                    type="text"
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 transition outline-none"
-                    placeholder="e.g. John Doe"
-                    value={name} onChange={(e) => setName(e.target.value)} required
-                    autoFocus
-                  />
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Full Name</label>
+                  <div className="relative group">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
+                    <input
+                      type="text"
+                      className="input-premium pl-12"
+                      placeholder="John Doe"
+                      value={name} onChange={(e) => setName(e.target.value)} required
+                    />
+                  </div>
                 </div>
+
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">I am a...</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Entity Role</label>
                   <select
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 transition outline-none appearance-none"
+                    className="input-premium appearance-none"
                     value={role} onChange={(e) => setRole(e.target.value)}
                   >
-                    <option value="STUDENT">Student 🎓</option>
-                    <option value="TEACHER">Teacher 🧑‍🏫</option>
+                    <option value="STUDENT">Student</option>
+                    <option value="TEACHER">Teacher</option>
                   </select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Email Address</label>
-                <input
-                  type="email"
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 transition outline-none"
-                  placeholder="john@example.com"
-                  value={email} onChange={(e) => setEmail(e.target.value)} required
-                />
+                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Email Terminal</label>
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
+                  <input
+                    type="email"
+                    className="input-premium pl-12"
+                    placeholder="john@nexus.edu"
+                    value={email} onChange={(e) => setEmail(e.target.value)} required
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Password</label>
-                <input
-                  type="password"
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 transition outline-none"
-                  placeholder="••••••••"
-                  value={password} onChange={(e) => setPassword(e.target.value)} required
-                />
-                <p className="text-xs text-gray-400">Must be at least 8 characters.</p>
+                <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Access Cipher</label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
+                  <input
+                    type="password"
+                    className="input-premium pl-12"
+                    placeholder="••••••••"
+                    value={password} onChange={(e) => setPassword(e.target.value)} required
+                  />
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg shadow-indigo-200 transition transform hover:-translate-y-0.5"
+                className="btn-premium w-full py-5 text-xl mt-4 shadow-indigo-500/20"
               >
-                {loading ? 'Creating Account...' : 'Sign Up'}
+                {loading ? 'SYNCING DATA...' : (
+                  <span className="flex items-center gap-2">Establish Link <ChevronRight size={20} /></span>
+                )}
               </button>
             </form>
 
-            <p className="mt-8 text-center text-sm text-slate-500">
-              Already have an account? <span onClick={() => navigate(roleParam ? `/login?role=${roleParam}` : '/login')} className="text-indigo-600 font-bold cursor-pointer hover:underline">Log in</span>
+            <p className="mt-12 text-center text-sm text-slate-500 font-medium">
+              Already have a profile? {' '}
+              <button 
+                onClick={() => navigate(roleParam ? `/login?role=${roleParam}` : '/login')} 
+                className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors"
+              >
+                Sign In
+              </button>
             </p>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
 
-export default Register;
+export default Register;
